@@ -1,5 +1,14 @@
 version: '3'
 
+vars:
+  CLUSTER_NAME: argocd-lab
+  K8S_VERSION: v1.35.0
+  ARGOCD_NAMESPACE: argocd
+  AIRFLOW_NAMESPACE: airflow
+  KIND_CONFIG: "" # leave empty to auto-generate in lab-start.sh
+  ARGO_VALUES: k8s/argocd/values.yaml
+  APPS_PATH: argocd/apps
+
 tasks:
   install:
     desc: Install required tooling (macOS only, uses Homebrew)
@@ -9,7 +18,7 @@ tasks:
   docs:serve:
     desc: Serve docs using uv (project-scoped in ./docs)
     cmds:
-      - uv run --project docs mkdocs serve
+      - uv run --project docs mkdocs serve --livereload --watch docs
 
   docs:build:
     desc: Build docs using uv (project-scoped in ./docs)
@@ -24,7 +33,7 @@ tasks:
   lab:start:
     desc: Start Kind cluster and bootstrap Argo CD + Apps
     cmds:
-      - ./scripts/setup.sh
+      - ./scripts/lab-start.sh --cluster-name {{.CLUSTER_NAME}} --k8s-version {{.K8S_VERSION}} --kind-config {{.KIND_CONFIG}} --argocd-namespace {{.ARGOCD_NAMESPACE}} --airflow-namespace {{.AIRFLOW_NAMESPACE}} --argo-values {{.ARGO_VALUES}} --apps-path {{.APPS_PATH}}
 
   lab:stop:
     desc: Stop Kind cluster
@@ -34,4 +43,4 @@ tasks:
   argocd:port-forward:
     desc: Port-forward Argo CD server to localhost:8080
     cmds:
-      - kubectl -n argocd port-forward svc/argocd-server 8080:443
+      - kubectl -n {{.ARGOCD_NAMESPACE}} port-forward svc/argocd-server 8080:443
