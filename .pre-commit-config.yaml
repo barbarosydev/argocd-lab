@@ -12,24 +12,25 @@ repos:
     rev: 24.10.0
     hooks:
       - id: black
-        language_version: python3.14
-        types: [python]
+        language_version: python3.14  # aligned with project Python 3.14.2
+        types: [ python ]
 
   - repo: https://github.com/PyCQA/isort
     rev: 5.13.2
     hooks:
       - id: isort
-        language_version: python3.14
-        types: [python]
+        language_version: python3.14  # aligned with project Python 3.14.2
+        types: [ python ]
 
-  # Go formatting via local hook using gofmt (requires Go toolchain installed)
   - repo: local
     hooks:
+      # Go formatting via local hook using gofmt (requires Go toolchain installed)
       - id: gofmt
         name: gofmt
         entry: gofmt -w
         language: system
-        types: [go]
+        types: [ go ]
+      # Helm validation hooks validate templating since YAML linter excludes templates
       - id: helm-lint-backend
         name: helm lint (backend chart)
         entry: sh -c 'helm lint k8s/backend'

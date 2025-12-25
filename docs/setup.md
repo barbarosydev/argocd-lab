@@ -1,11 +1,23 @@
 # Setup
 
-Minimal steps to use the lab with Taskfile.
+Minimal steps to use the lab with Taskfile and uv.
 
-## Install dependencies
+## Install dependencies (macOS only)
 
 ```bash
 task install
+```
+
+## Docs
+
+Serve locally (uv):
+```bash
+task docs:serve
+```
+
+Build site (uv):
+```bash
+task docs:build
 ```
 
 ## Start the lab
@@ -15,7 +27,6 @@ task lab:start
 ```
 
 Argo CD UI:
-
 ```bash
 task argocd:port-forward
 # open https://localhost:8080
@@ -25,12 +36,4 @@ task argocd:port-forward
 
 ```bash
 task lab:stop
-```
-
-## Docs
-
-```bash
-task docs:serve
-# or
-task docs:build
 ```
