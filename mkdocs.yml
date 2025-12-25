@@ -1,5 +1,5 @@
-site_name: ArgoCD Lab Docs
-site_description: Local lab using Kind, Helm, Argo CD, and Airflow
+site_name: Argo CD Lab
+site_description: Local lab using Minikube, Helm, Argo CD, and Airflow
 repo_url: https://github.com/barbarosydev/argocd-lab
 nav:
   - Home: index.md

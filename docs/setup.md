@@ -6,18 +6,18 @@ This guide helps you install tools and start the local lab quickly, using Taskfi
 
 - Taskfile provides simple, repeatable commands (https://taskfile.dev/)
 - Docs are served with uv using `docs/pyproject.toml`
-- The lab uses Kind + Helm + Argo CD, with apps managed by Argo CD
+- The lab uses Minikube + Helm + Argo CD, with apps managed by Argo CD
 
 ## Prerequisites
 
 - macOS with Homebrew (this setup is tested only on macOS 26; other platforms are not guaranteed)
-- Docker Desktop installed and running
+- Docker Desktop installed and running (or a supported VM driver for Minikube)
 - Internet access to pull images and Python packages
 
 ## Install tooling (macOS only)
 
 ```bash
-# Installs kind, kubectl, helm, uv, mkdocs, mkdocs-material via Homebrew
+# Installs minikube, kubectl, helm, uv, mkdocs, mkdocs-material via Homebrew
 task install
 ```
 
@@ -56,9 +56,8 @@ Common commands:
 The lab start script `scripts/lab-start.sh` accepts flags and environment overrides:
 
 - Flags (override environment defaults):
-  - `--cluster-name <name>` (default: argocd-lab)
-  - `--k8s-version <kindest/node tag>` (default: v1.35.0)
-  - `--kind-config <path>` (default: auto-generate minimal config)
+  - `--profile <name>` (alias: `--cluster-name`) (default: argocd-lab)
+  - `--k8s-version <k8s version>` (default: v1.35.0)
   - `--argocd-namespace <name>` (default: argocd)
   - `--airflow-namespace <name>` (default: airflow)
   - `--argo-values <path>` (default: k8s/argocd/values.yaml)
@@ -67,10 +66,10 @@ The lab start script `scripts/lab-start.sh` accepts flags and environment overri
 Examples:
 
 ```bash
-# Use a custom cluster name and Kind config
-./scripts/lab-start.sh --cluster-name mylab --kind-config ./k8s/kind/config.yaml
+# Use a custom profile
+./scripts/lab-start.sh --profile mylab
 
-# Pin a specific Kubernetes version for the Kind node image
+# Pin a specific Kubernetes version for Minikube
 ./scripts/lab-start.sh --k8s-version v1.35.0
 ```
 

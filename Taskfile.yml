@@ -1,11 +1,10 @@
 version: '3'
 
 vars:
-  CLUSTER_NAME: argocd-lab
+  PROFILE: argocd-lab
   K8S_VERSION: v1.35.0
   ARGOCD_NAMESPACE: argocd
   AIRFLOW_NAMESPACE: airflow
-  KIND_CONFIG: "" # leave empty to auto-generate in lab-start.sh
   ARGO_VALUES: k8s/argocd/values.yaml
   APPS_PATH: argocd/apps
 
@@ -31,12 +30,17 @@ tasks:
       - sh -c 'rm -rf docs/site .venv docs/.venv && find docs -type d -name __pycache__ -exec rm -rf {} +'
 
   lab:start:
-    desc: Start Kind cluster and bootstrap Argo CD + Apps
+    desc: Start Minikube cluster and bootstrap Argo CD + Apps
     cmds:
-      - ./scripts/lab-start.sh --cluster-name {{.CLUSTER_NAME}} --k8s-version {{.K8S_VERSION}} --kind-config {{.KIND_CONFIG}} --argocd-namespace {{.ARGOCD_NAMESPACE}} --airflow-namespace {{.AIRFLOW_NAMESPACE}} --argo-values {{.ARGO_VALUES}} --apps-path {{.APPS_PATH}}
+      - ./scripts/lab-start.sh --profile {{.PROFILE}} --k8s-version {{.K8S_VERSION}} --argocd-namespace {{.ARGOCD_NAMESPACE}} --airflow-namespace {{.AIRFLOW_NAMESPACE}} --argo-values {{.ARGO_VALUES}} --apps-path {{.APPS_PATH}}
+
+  lab:start:verbose:
+    desc: Start lab with verbose output for debugging
+    cmds:
+      - ./scripts/lab-start.sh --verbose --profile {{.PROFILE}} --k8s-version {{.K8S_VERSION}} --argocd-namespace {{.ARGOCD_NAMESPACE}} --airflow-namespace {{.AIRFLOW_NAMESPACE}} --argo-values {{.ARGO_VALUES}} --apps-path {{.APPS_PATH}}
 
   lab:stop:
-    desc: Stop Kind cluster
+    desc: Stop Minikube cluster
     cmds:
       - ./scripts/teardown.sh
 

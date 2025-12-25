@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env bash
 set -euo pipefail
 
 log() { echo "[install] $1"; }
@@ -14,7 +14,8 @@ log "Updating Homebrew"
 brew update
 
 # Install CLI tools via Homebrew (macOS only)
-for pkg in kind kubectl helm uv mkdocs mkdocs-material; do
+# Docs are managed via uv (see docs/pyproject.toml), so mkdocs packages are not installed via Homebrew.
+for pkg in jq minikube kubectl helm uv; do
   if brew list --formula "$pkg" >/dev/null 2>&1; then
     log "'$pkg' already installed"
   else
