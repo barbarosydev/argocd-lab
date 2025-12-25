@@ -1,0 +1,24 @@
+replicaCount: 1
+# Minimal local dev settings for Apache Airflow Helm chart
+executor: "CeleryExecutor"
+airflow:
+  image:
+    repository: apache/airflow
+    tag: 2.9.1
+    pullPolicy: IfNotPresent
+  config:
+    AIRFLOW__CORE__FERNET_KEY: "$(openssl rand -base64 32)"
+    AIRFLOW__CORE__LOAD_EXAMPLES: "True"
+  users:
+    - username: admin
+      password: admin
+      role: Admin
+  extraEnv:
+    - name: _PIP_ADDITIONAL_REQUIREMENTS
+      value: ""
+redis:
+  enabled: true
+postgresql:
+  enabled: true
+web:
+  port: 8081

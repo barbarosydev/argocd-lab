@@ -1,0 +1,6 @@
+apiVersion: v2
+name: airflow
+version: 0.1.0
+
+# Values for Airflow Helm chart application
+# This chart is managed by Argo CD via an Application resource

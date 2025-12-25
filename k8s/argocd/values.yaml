@@ -1,0 +1,37 @@
+# Values for Argo CD installation (argo/argo-cd chart)
+server:
+  extraArgs:
+    - --insecure
+  service:
+    type: ClusterIP
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+configs:
+  params:
+    server.insecure: true
+  cm:
+    application.instanceLabelKey: argocd.argoproj.io/instance
+
+# Reduce resource usage for local dev
+controller:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+repoServer:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
