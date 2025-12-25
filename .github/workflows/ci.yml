@@ -1,0 +1,17 @@
+name: CI
+      - run: mkdocs build
+      - run: pip install mkdocs mkdocs-material
+          python-version: '3.11'
+        with:
+      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+    steps:
+    runs-on: ubuntu-latest
+  docs:
+jobs:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  push:
+on:
+

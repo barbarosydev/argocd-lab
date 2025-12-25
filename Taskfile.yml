@@ -1,0 +1,37 @@
+version: '3'
+
+tasks:
+  install:
+    desc: Install required tooling (macOS only, uses Homebrew)
+    cmds:
+      - ./scripts/install-macos.sh
+
+  docs:serve:
+    desc: Serve docs using uv (project-scoped in ./docs)
+    cmds:
+      - uv run --project docs mkdocs serve
+
+  docs:build:
+    desc: Build docs using uv (project-scoped in ./docs)
+    cmds:
+      - uv run --project docs mkdocs build
+
+  docs:clean:
+    desc: Clean generated docs outputs and local virtual environments
+    cmds:
+      - sh -c 'rm -rf docs/site .venv docs/.venv && find docs -type d -name __pycache__ -exec rm -rf {} +'
+
+  lab:start:
+    desc: Start Kind cluster and bootstrap Argo CD + Apps
+    cmds:
+      - ./scripts/setup.sh
+
+  lab:stop:
+    desc: Stop Kind cluster
+    cmds:
+      - ./scripts/teardown.sh
+
+  argocd:port-forward:
+    desc: Port-forward Argo CD server to localhost:8080
+    cmds:
+      - kubectl -n argocd port-forward svc/argocd-server 8080:443

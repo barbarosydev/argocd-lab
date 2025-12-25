@@ -1,0 +1,21 @@
+site_name: ArgoCD Lab Docs
+site_description: Local lab using Kind, Helm, Argo CD, and Airflow
+repo_url: https://github.com/barbarosydev/argocd-lab
+nav:
+  - Home: index.md
+  - Setup: setup.md
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - content.code.copy
+markdown_extensions:
+  - admonition
+  - codehilite
+  - footnotes
+  - toc:
+      permalink: true
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/barbarosydev/argocd-lab
