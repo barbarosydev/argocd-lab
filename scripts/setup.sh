@@ -105,4 +105,3 @@ log "Setup complete"
 log "Argo CD UI: https://localhost:8080"
 log "Default admin password (initial):"
 kubectl -n "$ARGOCD_NAMESPACE" get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" 2>/dev/null | base64 --decode || echo "(may have been auto-rotated or disabled in values)"
-

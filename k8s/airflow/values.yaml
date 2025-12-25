@@ -22,4 +22,3 @@ postgresql:
   enabled: true
 web:
   port: 8081
-

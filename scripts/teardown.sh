@@ -17,4 +17,3 @@ log() { echo "[teardown] $1"; }
 CLUSTER_NAME="argocd-lab"
 
 set -euo pipefail
-

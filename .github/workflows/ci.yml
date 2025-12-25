@@ -1,17 +1,28 @@
 name: CI
-      - run: mkdocs build
-      - run: pip install mkdocs mkdocs-material
-          python-version: '3.11'
-        with:
-      - uses: actions/setup-python@v5
-      - uses: actions/checkout@v4
-    steps:
-    runs-on: ubuntu-latest
-  docs:
-jobs:
+
+on:
+  push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-  push:
-on:
 
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.14.2'
+
+      - name: Install uv (Python package manager)
+        run: |
+          curl -Ls https://astral.sh/uv/install.sh | sh
+          echo "${HOME}/.local/bin" >> $GITHUB_PATH
+
+      - name: Build docs with uv
+        run: |
+          uv run --project docs mkdocs build

@@ -1,0 +1,42 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+        exclude: ^k8s/.*/templates/.*\.yaml$
+      - id: check-added-large-files
+
+  - repo: https://github.com/psf/black
+    rev: 24.10.0
+    hooks:
+      - id: black
+        language_version: python3.14
+        types: [python]
+
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        language_version: python3.14
+        types: [python]
+
+  # Go formatting via local hook using gofmt (requires Go toolchain installed)
+  - repo: local
+    hooks:
+      - id: gofmt
+        name: gofmt
+        entry: gofmt -w
+        language: system
+        types: [go]
+      - id: helm-lint-backend
+        name: helm lint (backend chart)
+        entry: sh -c 'helm lint k8s/backend'
+        language: system
+        files: ^k8s/backend/.*
+      - id: helm-template-backend
+        name: helm template render check (backend chart)
+        entry: sh -c 'helm template backend k8s/backend -f k8s/backend/values.yaml >/dev/null'
+        language: system
+        files: ^k8s/backend/.*

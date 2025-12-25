@@ -5,11 +5,10 @@ metadata:
   labels:
     app: backend
 spec:
-  type: {{ .Values.service.type }}
+  type: "{{ .Values.service.type }}"
   selector:
     app: backend
   ports:
     - name: http
-      port: {{ .Values.service.port }}
+      port: "{{ .Values.service.port }}"
       targetPort: 8000
-

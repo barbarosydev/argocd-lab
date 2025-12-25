@@ -18,4 +18,3 @@ resources:
 # Local-only: disable ingress by default
 ingress:
   enabled: false
-
