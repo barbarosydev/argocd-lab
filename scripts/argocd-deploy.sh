@@ -3,10 +3,11 @@ set -euo pipefail
 
 # argocd-deploy.sh: install/upgrade Argo CD on Minikube
 # Usage:
-#   scripts/argocd-deploy.sh --argocd-namespace argocd --argo-values k8s/argocd/values.yaml
+#   scripts/argocd-deploy.sh --argocd-namespace argocd --argo-values k8s/argocd/values.yaml --port 8081
 
 ARGOCD_NAMESPACE=${ARGOCD_NAMESPACE:-argocd}
 ARGO_VALUES=${ARGO_VALUES:-k8s/argocd/values.yaml}
+ARGOCD_PORT=${ARGOCD_PORT:-8081}
 VERBOSE=${LAB_VERBOSE:-0}
 
 log() { echo "[argocd-deploy] $1"; }
@@ -24,12 +25,17 @@ while [[ $# -gt 0 ]]; do
       [[ -z "$ARGO_VALUES" ]] && { err "--argo-values requires a value"; exit 1; }
       shift 2
       ;;
+    --port)
+      ARGOCD_PORT=${2:-}
+      [[ -z "$ARGOCD_PORT" ]] && { err "--port requires a value"; exit 1; }
+      shift 2
+      ;;
     --verbose)
       VERBOSE=1
       shift 1
       ;;
     -h|--help)
-      echo "Usage: $0 [--argocd-namespace NAME] [--argo-values PATH] [--verbose]"
+      echo "Usage: $0 [--argocd-namespace NAME] [--argo-values PATH] [--port PORT] [--verbose]"
       exit 0
       ;;
     *)
@@ -99,7 +105,7 @@ log "━━━━━━━━━━━━━━━━━━━━━━━━━
 log "✓ Argo CD deployment complete!"
 log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 log ""
-log "  Access Argo CD UI: https://localhost:${ARGOCD_PORT}"
+log "  Access Argo CD UI: http://localhost:${ARGOCD_PORT}"
 log ""
 log "  Get admin password:"
 log "  kubectl -n ${ARGOCD_NAMESPACE} get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 --decode && echo"

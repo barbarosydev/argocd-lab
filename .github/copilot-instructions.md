@@ -34,10 +34,24 @@ argocd-lab/
 ## Key Commands
 
 ```bash
-task install      # Install tools (macOS)
-task lab:start    # Start env + deploy apps
-task lab:stop     # Stop and cleanup
-task docs:serve   # Serve documentation
+# Setup
+task install            # Install tools (macOS)
+task pre-commit:install # Install git hooks
+
+# Lab lifecycle
+task lab:start          # Start env + deploy Argo CD
+task lab:stop           # Stop and cleanup
+task lab:status         # Check status
+task lab:restart        # Restart environment
+
+# Argo CD
+task argocd:password    # Get admin password
+task argocd:ui          # Open browser
+
+# Development
+task docs:serve         # Serve documentation
+task validate           # Run all checks
+task clean              # Clean artifacts
 ```
 
 ## Coding Standards

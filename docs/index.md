@@ -20,7 +20,7 @@ task install    # Install tools
 task lab:start  # Start Minikube + Argo CD
 ```
 
-Access Argo CD UI at <https://localhost:8081>
+Access Argo CD UI at <http://localhost:8081>
 
 Get admin password:
 

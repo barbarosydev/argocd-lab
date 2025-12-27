@@ -64,7 +64,7 @@ Minikube Cluster
 
 After running `task lab:start`, you can:
 
-- Access Argo CD UI at <https://localhost:8081>
+- Access Argo CD UI at <http://localhost:8081>
 - Deploy applications using Argo CD
 - Learn GitOps workflows
 
