@@ -31,6 +31,8 @@ else
 fi
 
 log "Stopping Argo CD port-forward if running"
-pgrep -f "kubectl port-forward svc/argocd-server" >/dev/null && pkill -f "kubectl port-forward svc/argocd-server" || true
+if pgrep -f "kubectl port-forward svc/argocd-server" >/dev/null; then
+  pkill -f "kubectl port-forward svc/argocd-server"
+fi
 
 log "Lab stopped"

@@ -4,7 +4,7 @@ This guide helps you install tools and start the local lab quickly, using Taskfi
 
 ## Overview
 
-- Taskfile provides simple, repeatable commands (https://taskfile.dev/)
+- Taskfile provides simple, repeatable commands (<https://taskfile.dev/>)
 - Docs are served with uv using `docs/pyproject.toml`
 - The lab uses Minikube + Helm + Argo CD, with apps managed by Argo CD
 
@@ -26,26 +26,37 @@ task install
 Common commands:
 
 - Serve docs (auto-reload):
+
   ```bash
   task docs:serve
   ```
+
 - Build docs:
+
   ```bash
   task docs:build
   ```
+
 - Clean docs outputs and local venvs:
+
   ```bash
   task docs:clean
   ```
+
 - Start the lab:
+
   ```bash
   task lab:start
   ```
+
 - Stop the lab:
+
   ```bash
   task lab:stop
   ```
+
 - Port-forward Argo CD UI:
+
   ```bash
   task argocd:port-forward
   # open https://localhost:8080
@@ -80,6 +91,7 @@ Examples:
   - Ensure you’re editing files under `docs/`
   - Check the server output for errors
 - Argo CD initial admin password (if needed):
+
   ```bash
   kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 --decode
   ```

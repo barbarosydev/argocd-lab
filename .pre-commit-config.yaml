@@ -1,43 +1,82 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v5.0.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-yaml
         exclude: ^k8s/.*/templates/.*\.yaml$
       - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: mixed-line-ending
 
+  # Markdown linting and formatting
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.43.0
+    hooks:
+      - id: markdownlint
+        args: ['--fix']
+
+  # Shell script linting
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.10.0.1
+    hooks:
+      - id: shellcheck
+        args: ['-x']
+
+  # Dockerfile linting
+  - repo: https://github.com/hadolint/hadolint
+    rev: v2.12.0
+    hooks:
+      - id: hadolint-docker
+
+  # YAML linting
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.35.1
+    hooks:
+      - id: yamllint
+        exclude: ^k8s/.*/templates/.*\.yaml$
+        args: ['-d', '{extends: default, rules: {document-start: disable, line-length: {max: 180}, comments: {min-spaces-from-content: 1}, brackets: {max-spaces-inside: 1}}}']
+
+  # Python formatting and linting
   - repo: https://github.com/psf/black
     rev: 24.10.0
     hooks:
       - id: black
-        language_version: python3.14  # aligned with project Python 3.14.2
-        types: [ python ]
+        types: [python]
 
   - repo: https://github.com/PyCQA/isort
     rev: 5.13.2
     hooks:
       - id: isort
-        language_version: python3.14  # aligned with project Python 3.14.2
-        types: [ python ]
+        types: [python]
+
+  - repo: https://github.com/PyCQA/flake8
+    rev: 7.1.1
+    hooks:
+      - id: flake8
+        args: ['--max-line-length=120', '--extend-ignore=E203,W503']
+        types: [python]
 
   - repo: local
     hooks:
-      # Go formatting via local hook using gofmt (requires Go toolchain installed)
-      - id: gofmt
-        name: gofmt
-        entry: gofmt -w
-        language: system
-        types: [ go ]
       # Helm validation hooks validate templating since YAML linter excludes templates
       - id: helm-lint-backend
         name: helm lint (backend chart)
         entry: sh -c 'helm lint k8s/backend'
         language: system
         files: ^k8s/backend/.*
+        pass_filenames: false
       - id: helm-template-backend
         name: helm template render check (backend chart)
         entry: sh -c 'helm template backend k8s/backend -f k8s/backend/values.yaml >/dev/null'
         language: system
         files: ^k8s/backend/.*
+        pass_filenames: false
+      - id: helm-lint-airflow
+        name: helm lint (airflow chart)
+        entry: sh -c 'helm lint k8s/airflow'
+        language: system
+        files: ^k8s/airflow/.*
+        pass_filenames: false

@@ -15,7 +15,7 @@ brew update
 
 # Install CLI tools via Homebrew (macOS only)
 # Docs are managed via uv (see docs/pyproject.toml), so mkdocs packages are not installed via Homebrew.
-for pkg in jq minikube kubectl helm uv; do
+for pkg in jq minikube kubectl helm uv pre-commit; do
   if brew list --formula "$pkg" >/dev/null 2>&1; then
     log "'$pkg' already installed"
   else
@@ -23,5 +23,11 @@ for pkg in jq minikube kubectl helm uv; do
     brew install "$pkg"
   fi
 done
+
+# Install pre-commit hooks if in a git repository
+if [ -d .git ]; then
+  log "Installing pre-commit hooks"
+  pre-commit install
+fi
 
 log "Install complete (macOS only)"

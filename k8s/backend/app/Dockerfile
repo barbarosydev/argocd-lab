@@ -1,8 +1,8 @@
 # syntax=docker/dockerfile:1
 FROM python:3.11-slim AS base
 
-# Install uv
-RUN pip install uv
+# Install uv with pinned version
+RUN pip install --no-cache-dir uv==0.5.15
 
 WORKDIR /app
 COPY pyproject.toml /app/

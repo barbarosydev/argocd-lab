@@ -14,6 +14,17 @@ tasks:
     cmds:
       - ./scripts/install-macos.sh
 
+  # Pre-commit tasks
+  pre-commit:run:
+    desc: Run pre-commit hooks on all files
+    cmds:
+      - pre-commit run --all-files
+
+  pre-commit:install:
+    desc: Install pre-commit hooks into git
+    cmds:
+      - pre-commit install
+
   # Docs tasks
   docs:serve:
     desc: Serve docs using uv (project-scoped in ./docs)

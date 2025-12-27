@@ -34,5 +34,8 @@ kind/
 # Virtual envs inside docs
 docs/.venv/
 
+# pre-commit
+.pre-commit-cache/
+
 # Logs
 *.log
