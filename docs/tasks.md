@@ -1,25 +1,31 @@
 # Task Reference
 
+Quick reference for all available tasks. Run `task -l` to see the full list.
+
+## Lab Management
+
+```bash
+task lab:start          # Start complete lab (Minikube + Argo CD)
+task lab:stop           # Stop lab and cleanup
+task lab:restart        # Restart the lab
+task lab:status         # Check environment status
+```
+
 ## Environment
 
 ```bash
-task env:start          # Start Minikube cluster
+task env:start          # Start Minikube and deploy Argo CD
 task env:start:verbose  # Start with debug output
 task env:stop           # Stop and delete cluster
+task env:restart        # Restart environment
 ```
 
-## Deployment
+## Argo CD
 
 ```bash
-task deploy:argocd      # Install Argo CD
-task deploy:apps        # Deploy all applications
-```
-
-## Lab
-
-```bash
-task lab:start          # Complete setup
-task lab:stop           # Stop everything
+task argocd:deploy      # Deploy/upgrade Argo CD
+task argocd:password    # Get admin password
+task argocd:ui          # Open UI in browser
 ```
 
 ## Documentation
@@ -30,24 +36,65 @@ task docs:build         # Build static site
 task docs:clean         # Clean build artifacts
 ```
 
-## Development
+## Development & Quality
 
 ```bash
-task install            # Install tools (macOS)
-task pre-commit:run     # Run code quality checks
+task install            # Install dependencies (first time)
 task pre-commit:install # Install git hooks
+task pre-commit:run     # Run all checks
+task pre-commit:update  # Update hook versions
+task validate           # Run all validation
 ```
 
-## Port Forwarding
-
-Argo CD UI is automatically port-forwarded to localhost:8080 by `task lab:start`.
-
-For other apps:
+## Cleanup
 
 ```bash
-# Airflow
-kubectl -n airflow port-forward svc/airflow-webserver 8081:8080
-
-# Backend
-kubectl port-forward svc/backend-service 8000:80
+task clean              # Clean build artifacts
+task clean:all          # Deep clean (stop lab + cleanup)
 ```
+
+## Quick Start
+
+```bash
+# First time setup
+task install
+task pre-commit:install
+
+# Start working
+task lab:start
+task argocd:password
+task argocd:ui
+
+# When done
+task lab:stop
+```
+
+## Accessing Argo CD
+
+After running `task lab:start`:
+
+**URL**: <http://localhost:8081>
+
+**Get Password**:
+
+```bash
+task argocd:password
+```
+
+**Open UI**:
+
+```bash
+task argocd:ui
+```
+
+**Login**:
+
+- Username: admin
+- Password: (from command above)
+
+## Tips
+
+- Use `task -l` to see all available tasks
+- Use `task <task-name> --summary` to see task details
+- Tasks have dependency checks (will warn if prerequisites missing)
+- Verbose mode available for debugging: `task env:start:verbose`
