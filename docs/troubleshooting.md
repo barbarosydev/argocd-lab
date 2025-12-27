@@ -17,6 +17,33 @@ task lab:stop
 task env:start
 ```
 
+## Argo CD Not Deploying
+
+**Check Argo CD Pods**:
+
+```bash
+kubectl get pods -n argocd
+```
+
+**Check Argo CD Server Logs**:
+
+```bash
+kubectl logs -n argocd -l app.kubernetes.io/name=argocd-server --tail=100
+```
+
+**Check Argo CD Service**:
+
+```bash
+kubectl get svc -n argocd
+```
+
+**Reinstall Argo CD**:
+
+```bash
+helm uninstall argocd -n argocd
+task argocd:deploy
+```
+
 ## Argo CD Apps Not Syncing
 
 **Check Status**:

@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/barbarosydev/argocd-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/barbarosydev/argocd-lab/actions)
 
-A local Kubernetes lab for learning GitOps with **Argo CD**, **Helm**, and **Minikube**.
+A local Kubernetes lab for learning GitOps with **Argo CD** on **Minikube**.
 
 ## Quick Start
 
@@ -10,23 +10,23 @@ A local Kubernetes lab for learning GitOps with **Argo CD**, **Helm**, and **Min
 # Install dependencies (macOS)
 task install
 
-# Start everything
+# Start Minikube and deploy Argo CD
 task lab:start
+
+# Get Argo CD admin password
+task argocd:password
 
 # Access Argo CD UI at https://localhost:8080
 # Username: admin
-# Password: kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 --decode
+# Password: (from command above)
 ```
 
 ## Architecture
 
 ```text
 Minikube Cluster
-├── Argo CD (argocd namespace)
-│   └── Manages all applications via App-of-Apps
-└── Applications
-    ├── Airflow (airflow namespace)
-    └── Backend API (default namespace)
+└── Argo CD (argocd namespace)
+    └── Ready to deploy applications
 ```
 
 ## Key Commands
@@ -34,23 +34,18 @@ Minikube Cluster
 | Command | Description |
 |---------|-------------|
 | `task install` | Install tools (macOS) |
-| `task env:start` | Start Minikube |
-| `task deploy:argocd` | Deploy Argo CD |
-| `task deploy:apps` | Deploy applications |
-| `task lab:start` | Full setup (env + apps) |
+| `task lab:start` | Start Minikube + Argo CD |
 | `task lab:stop` | Stop and cleanup |
+| `task argocd:password` | Get Argo CD admin password |
 | `task docs:serve` | Serve documentation |
 
 ## Repository Structure
 
 ```text
 .
-├── argocd/apps/          # Argo CD Application manifests
 ├── docs/                 # Documentation
 ├── k8s/                  # Helm charts and values
-│   ├── airflow/
-│   ├── argocd/
-│   └── backend/
+│   └── argocd/          # Argo CD values
 ├── scripts/              # Automation scripts
 │   ├── minikube-start.sh
 │   ├── minikube-stop.sh
@@ -59,11 +54,19 @@ Minikube Cluster
 └── Taskfile.yml          # Task definitions
 ```
 
-## Adding an Application
+## What Gets Deployed
 
-1. Create Helm chart in `k8s/<app>/`
-2. Create Argo CD Application in `argocd/apps/<app>.yaml`
-3. Reference in `argocd/apps/app-of-apps.yaml`
+1. **Minikube** - Local Kubernetes cluster (v1.35.0)
+2. **Argo CD** - Installed via Helm with custom values
+3. **Port-forward** - Argo CD UI accessible at <https://localhost:8080>
+
+## Next Steps
+
+After running `task lab:start`, you can:
+
+- Access Argo CD UI at <https://localhost:8081>
+- Deploy applications using Argo CD
+- Learn GitOps workflows
 
 ## Documentation
 

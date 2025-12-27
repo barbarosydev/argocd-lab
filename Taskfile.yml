@@ -4,9 +4,7 @@ vars:
   PROFILE: argocd-lab
   K8S_VERSION: v1.35.0
   ARGOCD_NAMESPACE: argocd
-  AIRFLOW_NAMESPACE: airflow
   ARGO_VALUES: k8s/argocd/values.yaml
-  APPS_PATH: argocd/apps
 
 tasks:
   install:
@@ -43,39 +41,45 @@ tasks:
 
   # Environment lifecycle
   env:start:
-    desc: Start local Kubernetes (Minikube) environment
+    desc: Start Minikube and deploy Argo CD
     cmds:
       - ./scripts/minikube-start.sh --profile {{.PROFILE}} --k8s-version {{.K8S_VERSION}}
+      - ./scripts/argocd-deploy.sh --argocd-namespace {{.ARGOCD_NAMESPACE}} --argo-values {{.ARGO_VALUES}}
 
   env:start:verbose:
     desc: Start environment with verbose output for debugging
     cmds:
       - ./scripts/minikube-start.sh --verbose --profile {{.PROFILE}} --k8s-version {{.K8S_VERSION}}
+      - ./scripts/argocd-deploy.sh --verbose --argocd-namespace {{.ARGOCD_NAMESPACE}} --argo-values {{.ARGO_VALUES}}
 
   env:stop:
     desc: Stop local environment (delete Minikube profile)
     cmds:
       - ./scripts/minikube-stop.sh --profile {{.PROFILE}}
 
-  # Tool deployments (require environment to be running)
-  deploy:argocd:
-    desc: Install/upgrade Argo CD via Helm
+  # Argo CD deployment (standalone)
+  argocd:deploy:
+    desc: Deploy Argo CD to existing Minikube cluster
     cmds:
-      - ./scripts/argocd-deploy.sh --verbose --argocd-namespace {{.ARGOCD_NAMESPACE}} --argo-values {{.ARGO_VALUES}} --apps-path {{.APPS_PATH}}
+      - ./scripts/argocd-deploy.sh --argocd-namespace {{.ARGOCD_NAMESPACE}} --argo-values {{.ARGO_VALUES}} --port {{.ARGOCD_PORT}}
 
-  deploy:apps:
-    desc: Apply Argo CD App of Apps (includes Airflow and backend)
+  argocd:password:
+    desc: Get Argo CD admin password
     cmds:
-      - ./scripts/argocd-deploy.sh --argocd-namespace {{.ARGOCD_NAMESPACE}} --airflow-namespace {{.AIRFLOW_NAMESPACE}} --apps-path {{.APPS_PATH}} --argo-values {{.ARGO_VALUES}}
+      - kubectl -n {{.ARGOCD_NAMESPACE}} get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 --decode && echo
 
+  # Convenience aliases
   lab:start:
-    desc: "Convenience: start environment then deploy Argo CD + apps"
+    desc: Start lab (Minikube + Argo CD)
     cmds:
-      - "task env:start"
-      - "task deploy:argocd"
-      - "task deploy:apps"
+      - task env:start
 
   lab:stop:
     desc: Stop lab environment
     cmds:
       - task env:stop
+
+  lab:status:
+    desc: Check lab environment status
+    cmds:
+      - ./scripts/check-lab-status.sh

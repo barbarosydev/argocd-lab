@@ -28,7 +28,7 @@ This will:
 
 ## Access Argo CD
 
-**URL**: <https://localhost:8080>
+**URL**: <https://localhost:8081>
 
 **Get Password**:
 

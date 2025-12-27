@@ -30,9 +30,12 @@ else
   log "Profile '${PROFILE}' not found. Nothing to delete."
 fi
 
-log "Stopping Argo CD port-forward if running"
-if pgrep -f "kubectl port-forward svc/argocd-server" >/dev/null; then
-  pkill -f "kubectl port-forward svc/argocd-server"
+log "Stopping all port-forward processes"
+if pgrep -f "kubectl port-forward" >/dev/null; then
+  pkill -f "kubectl port-forward"
+  log "Port-forward processes stopped"
+else
+  log "No port-forward processes found"
 fi
 
 log "Lab stopped"

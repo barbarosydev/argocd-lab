@@ -1,14 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# argocd-deploy.sh: install/upgrade Argo CD and apply Argo CD apps (including airflow/backend)
+# argocd-deploy.sh: install/upgrade Argo CD on Minikube
 # Usage:
-#   scripts/argocd-deploy.sh --argocd-namespace argocd --airflow-namespace airflow --argo-values k8s/argocd/values.yaml --apps-path argocd/apps
+#   scripts/argocd-deploy.sh --argocd-namespace argocd --argo-values k8s/argocd/values.yaml
 
 ARGOCD_NAMESPACE=${ARGOCD_NAMESPACE:-argocd}
-AIRFLOW_NAMESPACE=${AIRFLOW_NAMESPACE:-airflow}
 ARGO_VALUES=${ARGO_VALUES:-k8s/argocd/values.yaml}
-APPS_PATH=${APPS_PATH:-argocd/apps}
 VERBOSE=${LAB_VERBOSE:-0}
 
 log() { echo "[argocd-deploy] $1"; }
@@ -17,25 +15,26 @@ err() { echo "[argocd-deploy] ERROR: $1" >&2; }
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --argocd-namespace)
-      ARGOCD_NAMESPACE=${2:-}; [[ -z "$ARGOCD_NAMESPACE" ]] && { err "--argocd-namespace requires a value"; exit 1; }; shift 2;
-      ;;
-    --airflow-namespace)
-      AIRFLOW_NAMESPACE=${2:-}; [[ -z "$AIRFLOW_NAMESPACE" ]] && { err "--airflow-namespace requires a value"; exit 1; }; shift 2;
+      ARGOCD_NAMESPACE=${2:-}
+      [[ -z "$ARGOCD_NAMESPACE" ]] && { err "--argocd-namespace requires a value"; exit 1; }
+      shift 2
       ;;
     --argo-values)
-      ARGO_VALUES=${2:-}; [[ -z "$ARGO_VALUES" ]] && { err "--argo-values requires a value"; exit 1; }; shift 2;
-      ;;
-    --apps-path)
-      APPS_PATH=${2:-}; [[ -z "$APPS_PATH" ]] && { err "--apps-path requires a value"; exit 1; }; shift 2;
+      ARGO_VALUES=${2:-}
+      [[ -z "$ARGO_VALUES" ]] && { err "--argo-values requires a value"; exit 1; }
+      shift 2
       ;;
     --verbose)
-      VERBOSE=1; shift 1;
+      VERBOSE=1
+      shift 1
       ;;
     -h|--help)
-      echo "Usage: $0 [--argocd-namespace NAME] [--airflow-namespace NAME] [--argo-values PATH] [--apps-path PATH] [--verbose]"; exit 0;
+      echo "Usage: $0 [--argocd-namespace NAME] [--argo-values PATH] [--verbose]"
+      exit 0
       ;;
     *)
-      err "Unknown arg: $1"; exit 1;
+      err "Unknown arg: $1"
+      exit 1
       ;;
   esac
 done
@@ -52,13 +51,11 @@ for cmd in kubectl helm; do
   command -v "$cmd" >/dev/null 2>&1 || { err "'$cmd' is not installed"; exit 1; }
 done
 
-log "Ensuring namespaces: ${ARGOCD_NAMESPACE}, ${AIRFLOW_NAMESPACE}"
+log "Ensuring namespace: ${ARGOCD_NAMESPACE}"
 kubectl get ns "$ARGOCD_NAMESPACE" >&3 2>&4 || kubectl create ns "$ARGOCD_NAMESPACE" >&3 2>&4
-kubectl get ns "$AIRFLOW_NAMESPACE" >&3 2>&4 || kubectl create ns "$AIRFLOW_NAMESPACE" >&3 2>&4
 
-log "Setting up Helm repositories (argo, apache-airflow)"
+log "Setting up Helm repository for Argo CD"
 helm repo add argo https://argoproj.github.io/argo-helm >&3 2>&4 || true
-helm repo add apache-airflow https://airflow.apache.org >&3 2>&4 || true
 helm repo update >&3 2>&4 || true
 
 log "Installing Argo CD via Helm"
@@ -67,16 +64,46 @@ helm upgrade --install argocd argo/argo-cd \
   --create-namespace \
   -f "$ARGO_VALUES" >&3 2>&4
 
-log "Waiting for Argo CD deployments to be ready (best-effort)"
+log "Waiting for Argo CD deployments to be ready"
 kubectl -n "$ARGOCD_NAMESPACE" rollout status deployment/argocd-server --timeout=180s >&3 2>&4 || true
 kubectl -n "$ARGOCD_NAMESPACE" rollout status deployment/argocd-repo-server --timeout=180s >&3 2>&4 || true
 kubectl -n "$ARGOCD_NAMESPACE" rollout status deployment/argocd-application-controller --timeout=180s >&3 2>&4 || true
 
-if [[ -d "$APPS_PATH" ]]; then
-  log "Applying App of Apps from '$APPS_PATH/app-of-apps.yaml'"
-  kubectl apply -n "$ARGOCD_NAMESPACE" -f "$APPS_PATH/app-of-apps.yaml" >&3 2>&4
-else
-  err "Apps path '$APPS_PATH' not found"; exit 1;
+log "Starting Argo CD UI port-forward"
+
+# Check if port is already in use
+if lsof -Pi :"${ARGOCD_PORT}" -sTCP:LISTEN -t >/dev/null 2>&1 ; then
+  log "WARNING: Port ${ARGOCD_PORT} is already in use"
+  log "Killing existing port-forward processes..."
+  pkill -f "kubectl port-forward svc/argocd-server" || true
+  sleep 2
 fi
 
-log "Deployments applied"
+# Start port-forward
+log "Port-forwarding Argo CD UI to https://localhost:${ARGOCD_PORT}"
+nohup kubectl -n "${ARGOCD_NAMESPACE}" port-forward svc/argocd-server "${ARGOCD_PORT}":443 \
+  >/tmp/argocd-port-forward.log 2>&1 &
+PORT_FORWARD_PID=$!
+
+# Wait a bit and check if port-forward is successful
+sleep 3
+if ps -p $PORT_FORWARD_PID > /dev/null 2>&1; then
+  log "✓ Port-forward started successfully (PID: $PORT_FORWARD_PID)"
+else
+  err "Port-forward failed to start. Check /tmp/argocd-port-forward.log"
+  cat /tmp/argocd-port-forward.log
+  exit 1
+fi
+
+log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+log "✓ Argo CD deployment complete!"
+log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+log ""
+log "  Access Argo CD UI: https://localhost:${ARGOCD_PORT}"
+log ""
+log "  Get admin password:"
+log "  kubectl -n ${ARGOCD_NAMESPACE} get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 --decode && echo"
+log ""
+log "  Or use: task argocd:password"
+log ""
+log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
