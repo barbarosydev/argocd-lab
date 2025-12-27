@@ -12,7 +12,7 @@ tasks:
   install:
     desc: Install required tooling (macOS only, uses Homebrew)
     cmds:
-      - ./scripts/install-macos.sh
+      - ./scripts/setup-dependencies.sh
 
   # Pre-commit tasks
   pre-commit:run:
@@ -45,28 +45,28 @@ tasks:
   env:start:
     desc: Start local Kubernetes (Minikube) environment
     cmds:
-      - ./scripts/env-start.sh --profile {{.PROFILE}} --k8s-version {{.K8S_VERSION}}
+      - ./scripts/minikube-start.sh --profile {{.PROFILE}} --k8s-version {{.K8S_VERSION}}
 
   env:start:verbose:
     desc: Start environment with verbose output for debugging
     cmds:
-      - ./scripts/env-start.sh --verbose --profile {{.PROFILE}} --k8s-version {{.K8S_VERSION}}
+      - ./scripts/minikube-start.sh --verbose --profile {{.PROFILE}} --k8s-version {{.K8S_VERSION}}
 
   env:stop:
     desc: Stop local environment (delete Minikube profile)
     cmds:
-      - ./scripts/lab-stop.sh --profile {{.PROFILE}}
+      - ./scripts/minikube-stop.sh --profile {{.PROFILE}}
 
   # Tool deployments (require environment to be running)
   deploy:argocd:
     desc: Install/upgrade Argo CD via Helm
     cmds:
-      - ./scripts/deploy-tools.sh --verbose --argocd-namespace {{.ARGOCD_NAMESPACE}} --argo-values {{.ARGO_VALUES}} --apps-path {{.APPS_PATH}}
+      - ./scripts/argocd-deploy.sh --verbose --argocd-namespace {{.ARGOCD_NAMESPACE}} --argo-values {{.ARGO_VALUES}} --apps-path {{.APPS_PATH}}
 
   deploy:apps:
     desc: Apply Argo CD App of Apps (includes Airflow and backend)
     cmds:
-      - ./scripts/deploy-tools.sh --argocd-namespace {{.ARGOCD_NAMESPACE}} --airflow-namespace {{.AIRFLOW_NAMESPACE}} --apps-path {{.APPS_PATH}} --argo-values {{.ARGO_VALUES}}
+      - ./scripts/argocd-deploy.sh --argocd-namespace {{.ARGOCD_NAMESPACE}} --airflow-namespace {{.AIRFLOW_NAMESPACE}} --apps-path {{.APPS_PATH}} --argo-values {{.ARGO_VALUES}}
 
   lab:start:
     desc: "Convenience: start environment then deploy Argo CD + apps"

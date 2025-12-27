@@ -1,20 +1,45 @@
 site_name: Argo CD Lab
-site_description: Local lab using Minikube, Helm, Argo CD, and Airflow
+site_description: Local Kubernetes lab for learning GitOps with Argo CD
+site_author: barbarosydev
 repo_url: https://github.com/barbarosydev/argocd-lab
+repo_name: barbarosydev/argocd-lab
+
 nav:
   - Home: index.md
   - Setup: setup.md
+  - Tasks: tasks.md
+  - Troubleshooting: troubleshooting.md
+
 theme:
   name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
   features:
-    - navigation.tabs
+    - navigation.top
+    - search.suggest
     - content.code.copy
+
 markdown_extensions:
   - admonition
-  - codehilite
-  - footnotes
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
   - toc:
       permalink: true
+
+plugins:
+  - search
+
 extra:
   social:
     - icon: fontawesome/brands/github

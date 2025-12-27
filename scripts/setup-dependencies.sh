@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-log() { echo "[install] $1"; }
+log() { echo "[setup-dependencies] $1"; }
 
 # Ensure Homebrew is available
 if ! command -v brew >/dev/null 2>&1; then
