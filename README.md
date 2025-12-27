@@ -31,13 +31,13 @@ Minikube Cluster
 
 ## Key Commands
 
-| Command | Description |
-|---------|-------------|
-| `task install` | Install tools (macOS) |
-| `task lab:start` | Start Minikube + Argo CD |
-| `task lab:stop` | Stop and cleanup |
+| Command                | Description                |
+|------------------------|----------------------------|
+| `task install`         | Install tools (macOS)      |
+| `task lab:start`       | Start Minikube + Argo CD   |
+| `task lab:stop`        | Stop and cleanup           |
 | `task argocd:password` | Get Argo CD admin password |
-| `task docs:serve` | Serve documentation |
+| `task docs:serve`      | Serve documentation        |
 
 ## Repository Structure
 
