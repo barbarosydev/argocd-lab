@@ -16,7 +16,7 @@ task lab:start
 # Get Argo CD admin password
 task argocd:password
 
-# Access Argo CD UI at https://localhost:8080
+# Access Argo CD UI at http://localhost:8081
 # Username: admin
 # Password: (from command above)
 ```
@@ -58,19 +58,15 @@ Minikube Cluster
 
 1. **Minikube** - Local Kubernetes cluster (v1.35.0)
 2. **Argo CD** - Installed via Helm with custom values
-3. **Port-forward** - Argo CD UI accessible at <https://localhost:8080>
-
-## Next Steps
-
-After running `task lab:start`, you can:
-
-- Access Argo CD UI at <http://localhost:8081>
-- Deploy applications using Argo CD
-- Learn GitOps workflows
+3. **Port-forward** - Argo CD UI accessible at <http://localhost:8081>
 
 ## Documentation
 
-Full docs available at [http://localhost:8000](http://localhost:8000) via `task docs:serve`
+Full documentation at [http://localhost:8000](http://localhost:8000) via `task docs:serve`
+
+- **[Setup](docs/setup.md)** - Installation and configuration
+- **[Tasks](docs/tasks.md)** - Command reference
+- **[Troubleshooting](docs/troubleshooting.md)** - Common issues
 
 ## Core Principles
 
