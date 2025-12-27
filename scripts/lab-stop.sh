@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# lab-stop.sh: stop local lab (delete Minikube and stop port-forward)
 PROFILE=${MINIKUBE_PROFILE:-${CLUSTER_NAME:-argocd-lab}}
 
-log() { echo "[teardown] $1"; }
-err() { echo "[teardown] ERROR: $1" >&2; }
+log() { echo "[lab-stop] $1"; }
+err() { echo "[lab-stop] ERROR: $1" >&2; }
 
-# Parse optional --profile/--cluster-name
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --profile|--cluster-name)
@@ -23,7 +23,6 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-# Delete minikube profile if exists
 if minikube profile list -o json 2>/dev/null | jq -e --arg p "$PROFILE" '.valid[]?.Name == $p' >/dev/null; then
   log "Deleting Minikube profile '${PROFILE}'"
   minikube delete -p "$PROFILE"
@@ -36,4 +35,4 @@ if pgrep -f "kubectl port-forward svc/argocd-server" >/dev/null; then
   pkill -f "kubectl port-forward svc/argocd-server"
 fi
 
-log "Teardown complete"
+log "Lab stopped"

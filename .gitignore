@@ -7,10 +7,12 @@ __pycache__/
 
 # uv
 .uv/
-uv.lock
+# Keep lockfile tracked for reproducibility
+# (do not ignore uv.lock)
 
 # MkDocs
 site/
+docs/site/
 
 # Node/npm
 node_modules/
@@ -28,6 +30,12 @@ kind/
 
 # Argo CD
 .argocd/
+
+# Virtual envs inside docs
+docs/.venv/
+
+# pre-commit
+.pre-commit-cache/
 
 # Logs
 *.log

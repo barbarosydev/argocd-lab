@@ -1,0 +1,17 @@
+# Markdownlint configuration for argocd-lab
+# Relaxed rules for technical documentation
+
+# MD013: Line length - allow longer lines for code blocks and tables
+MD013:
+  line_length: 120
+  code_blocks: false
+  tables: false
+
+# MD033: Allow inline HTML (useful for badges, centering, etc.)
+MD033: false
+
+# MD041: First line in file should be a top level heading
+MD041: false
+
+# MD046: Code block style - allow both fenced and indented
+MD046: false

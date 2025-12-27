@@ -1,11 +1,10 @@
 version: '3'
 
 vars:
-  CLUSTER_NAME: argocd-lab
+  PROFILE: argocd-lab
   K8S_VERSION: v1.35.0
   ARGOCD_NAMESPACE: argocd
   AIRFLOW_NAMESPACE: airflow
-  KIND_CONFIG: "" # leave empty to auto-generate in lab-start.sh
   ARGO_VALUES: k8s/argocd/values.yaml
   APPS_PATH: argocd/apps
 
@@ -15,6 +14,18 @@ tasks:
     cmds:
       - ./scripts/install-macos.sh
 
+  # Pre-commit tasks
+  pre-commit:run:
+    desc: Run pre-commit hooks on all files
+    cmds:
+      - pre-commit run --all-files
+
+  pre-commit:install:
+    desc: Install pre-commit hooks into git
+    cmds:
+      - pre-commit install
+
+  # Docs tasks
   docs:serve:
     desc: Serve docs using uv (project-scoped in ./docs)
     cmds:
@@ -30,17 +41,41 @@ tasks:
     cmds:
       - sh -c 'rm -rf docs/site .venv docs/.venv && find docs -type d -name __pycache__ -exec rm -rf {} +'
 
-  lab:start:
-    desc: Start Kind cluster and bootstrap Argo CD + Apps
+  # Environment lifecycle
+  env:start:
+    desc: Start local Kubernetes (Minikube) environment
     cmds:
-      - ./scripts/lab-start.sh --cluster-name {{.CLUSTER_NAME}} --k8s-version {{.K8S_VERSION}} --kind-config {{.KIND_CONFIG}} --argocd-namespace {{.ARGOCD_NAMESPACE}} --airflow-namespace {{.AIRFLOW_NAMESPACE}} --argo-values {{.ARGO_VALUES}} --apps-path {{.APPS_PATH}}
+      - ./scripts/env-start.sh --profile {{.PROFILE}} --k8s-version {{.K8S_VERSION}}
+
+  env:start:verbose:
+    desc: Start environment with verbose output for debugging
+    cmds:
+      - ./scripts/env-start.sh --verbose --profile {{.PROFILE}} --k8s-version {{.K8S_VERSION}}
+
+  env:stop:
+    desc: Stop local environment (delete Minikube profile)
+    cmds:
+      - ./scripts/lab-stop.sh --profile {{.PROFILE}}
+
+  # Tool deployments (require environment to be running)
+  deploy:argocd:
+    desc: Install/upgrade Argo CD via Helm
+    cmds:
+      - ./scripts/deploy-tools.sh --verbose --argocd-namespace {{.ARGOCD_NAMESPACE}} --argo-values {{.ARGO_VALUES}} --apps-path {{.APPS_PATH}}
+
+  deploy:apps:
+    desc: Apply Argo CD App of Apps (includes Airflow and backend)
+    cmds:
+      - ./scripts/deploy-tools.sh --argocd-namespace {{.ARGOCD_NAMESPACE}} --airflow-namespace {{.AIRFLOW_NAMESPACE}} --apps-path {{.APPS_PATH}} --argo-values {{.ARGO_VALUES}}
+
+  lab:start:
+    desc: "Convenience: start environment then deploy Argo CD + apps"
+    cmds:
+      - "task env:start"
+      - "task deploy:argocd"
+      - "task deploy:apps"
 
   lab:stop:
-    desc: Stop Kind cluster
+    desc: Stop lab environment
     cmds:
-      - ./scripts/teardown.sh
-
-  argocd:port-forward:
-    desc: Port-forward Argo CD server to localhost:8080
-    cmds:
-      - kubectl -n {{.ARGOCD_NAMESPACE}} port-forward svc/argocd-server 8080:443
+      - task env:stop
