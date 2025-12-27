@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# lab-stop.sh: stop local lab (delete Minikube and stop port-forward)
+# minikube-stop.sh: stop local lab (delete Minikube and stop port-forward)
 PROFILE=${MINIKUBE_PROFILE:-${CLUSTER_NAME:-argocd-lab}}
 
-log() { echo "[lab-stop] $1"; }
-err() { echo "[lab-stop] ERROR: $1" >&2; }
+log() { echo "[minikube-stop] $1"; }
+err() { echo "[minikube-stop] ERROR: $1" >&2; }
 
 while [[ $# -gt 0 ]]; do
   case "$1" in

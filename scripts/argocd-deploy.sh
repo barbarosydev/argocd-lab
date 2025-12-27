@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# deploy-tools.sh: install/upgrade Argo CD and apply Argo CD apps (including airflow/backend)
+# argocd-deploy.sh: install/upgrade Argo CD and apply Argo CD apps (including airflow/backend)
 # Usage:
-#   scripts/deploy-tools.sh --argocd-namespace argocd --airflow-namespace airflow --argo-values k8s/argocd/values.yaml --apps-path argocd/apps
+#   scripts/argocd-deploy.sh --argocd-namespace argocd --airflow-namespace airflow --argo-values k8s/argocd/values.yaml --apps-path argocd/apps
 
 ARGOCD_NAMESPACE=${ARGOCD_NAMESPACE:-argocd}
 AIRFLOW_NAMESPACE=${AIRFLOW_NAMESPACE:-airflow}
@@ -11,8 +11,8 @@ ARGO_VALUES=${ARGO_VALUES:-k8s/argocd/values.yaml}
 APPS_PATH=${APPS_PATH:-argocd/apps}
 VERBOSE=${LAB_VERBOSE:-0}
 
-log() { echo "[deploy-tools] $1"; }
-err() { echo "[deploy-tools] ERROR: $1" >&2; }
+log() { echo "[argocd-deploy] $1"; }
+err() { echo "[argocd-deploy] ERROR: $1" >&2; }
 
 while [[ $# -gt 0 ]]; do
   case "$1" in

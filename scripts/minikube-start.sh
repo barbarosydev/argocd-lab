@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# env-start.sh: start local Kubernetes (Minikube) environment
+# minikube-start.sh: start local Kubernetes (Minikube) environment
 # Usage:
-#   scripts/env-start.sh --profile argocd-lab --k8s-version v1.35.0
+#   scripts/minikube-start.sh --profile argocd-lab --k8s-version v1.35.0
 
 PROFILE=${MINIKUBE_PROFILE:-${CLUSTER_NAME:-argocd-lab}}
 K8S_VERSION=${K8S_VERSION:-v1.35.0}
 VERBOSE=${LAB_VERBOSE:-0}
 
-log() { echo "[env-start] $1"; }
-err() { echo "[env-start] ERROR: $1" >&2; }
+log() { echo "[minikube-start] $1"; }
+err() { echo "[minikube-start] ERROR: $1" >&2; }
 
 while [[ $# -gt 0 ]]; do
   case "$1" in

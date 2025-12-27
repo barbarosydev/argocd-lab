@@ -1,43 +1,39 @@
-# Argo CD Lab
+# Welcome
 
-Welcome! This documentation guides you through setting up a local lab environment using Minikube, Helm, Argo CD, and
-Airflow.
+A local Kubernetes lab for learning GitOps with Argo CD, Helm, and Minikube.
 
-- Use the Setup page for dependency installation and running the environment.
-- Explore Argo CD UI at <https://localhost:8080> after setup.
+## What's Included
 
-## Prerequisites
+- **Minikube** - Local Kubernetes cluster (v1.35.0)
+- **Argo CD** - GitOps continuous delivery
+- **Helm** - Package manager
+- **Applications** - Airflow and Python backend examples
 
-- Docker Desktop installed and running (or a supported VM driver)
-- Minikube
-- kubectl
-- Helm
-- uv (Python package manager)
+## Quick Links
 
-> Note
-> Tested only on macOS 26. This setup may not work on other platforms and is not guaranteed.
+- **[Setup](setup.md)** - Installation and configuration
+- **[Tasks](tasks.md)** - Common commands
+- **[Troubleshooting](troubleshooting.md)** - Common issues
 
-## Tool versions and official links
+## Getting Started
 
-| Tool                  | Version              | Official Link                                                                                                             |
-|-----------------------|----------------------|---------------------------------------------------------------------------------------------------------------------------|
-| Python                | 3.14.2               | [python.org](https://www.python.org/)                                                                                     |
-| uv (Python pkg mgr)   | Latest stable        | [astral.sh/uv](https://astral.sh/uv/)                                                                                     |
-| Kubernetes (Minikube) | v1.35.0              | [kubernetes.io](https://kubernetes.io/)                                                                                   |
-| Minikube              | Latest stable        | [minikube.sigs.k8s.io](https://minikube.sigs.k8s.io/)                                                                     |
-| Argo CD               | Latest stable (Helm) | [Argo CD docs](https://argo-cd.readthedocs.io/) · [Artifact Hub chart](https://artifacthub.io/packages/helm/argo/argo-cd) |
-| Helm                  | Latest stable        | [helm.sh](https://helm.sh/)                                                                                               |
-| MkDocs                | 1.6.x                | [mkdocs.org](https://www.mkdocs.org/)                                                                                     |
-| Material for MkDocs   | 9.5.x                | [mkdocs-material](https://squidfunk.github.io/mkdocs-material/)                                                           |
-| Taskfile              | Latest stable        | [taskfile.dev](https://taskfile.dev/)                                                                                     |
+```bash
+task install    # Install tools
+task lab:start  # Start everything
+```
 
-Task defaults (see `Taskfile.yml`):
+Access Argo CD UI at <https://localhost:8080>
 
-- Profile (Minikube): argocd-lab
-- Kubernetes version: v1.35.0
-- Argo CD namespace: argocd
-- Airflow namespace: airflow
-- Apps path: argocd/apps
+## Architecture
 
-Versions are pinned via `pyproject.toml` in docs and backend (Python 3.14.2). Other tools are kept at latest stable for
-local development. Use Taskfile commands to run docs via uv.
+```text
+Minikube → Argo CD → Applications (Airflow, Backend)
+```
+
+Argo CD watches `k8s/` directory and auto-syncs changes to the cluster.
+
+## Learn More
+
+- Modify `k8s/*/values.yaml` to change app configs
+- Add new apps in `argocd/apps/`
+- Use `task -l` to see all commands
