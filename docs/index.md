@@ -20,7 +20,7 @@ task install    # Install tools
 task lab:start  # Start Minikube + Argo CD
 ```
 
-Access Argo CD UI at <http://localhost:8081>
+Access Argo CD UI at <http://localhost:8081> with username `admin`.
 
 Get admin password:
 
@@ -31,14 +31,7 @@ task argocd:password
 ## Architecture
 
 ```text
-Minikube → Argo CD → Ready to deploy applications
+Minikube → Argo CD → Applications
 ```
 
-Argo CD is deployed and ready to manage applications using GitOps principles.
-
-## Next Steps
-
-- Access Argo CD UI
-- Deploy your first application
-- Learn GitOps workflows
-- Use `task -l` to see all commands
+Argo CD runs in the `argocd` namespace and is ready to manage applications using GitOps principles.

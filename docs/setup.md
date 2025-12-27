@@ -30,14 +30,13 @@ This will:
 
 **URL**: <http://localhost:8081>
 
+**Username**: `admin`
+
 **Get Password**:
 
 ```bash
-kubectl -n argocd get secret argocd-initial-admin-secret \
-  -o jsonpath='{.data.password}' | base64 --decode
+task argocd:password
 ```
-
-**Login**: admin / (password from above)
 
 ## Configuration
 
