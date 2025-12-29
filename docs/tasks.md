@@ -23,9 +23,10 @@ task env:restart        # Restart environment
 ## Argo CD
 
 ```bash
-task argocd:deploy      # Deploy/upgrade Argo CD
-task argocd:password    # Get admin password
-task argocd:ui          # Open UI in browser
+task argocd:deploy        # Deploy/upgrade Argo CD
+task argocd:deploy-app    # Build and deploy application (default: demo-api)
+task argocd:password      # Get admin password
+task argocd:ui            # Open UI in browser
 ```
 
 ## Documentation
@@ -98,3 +99,68 @@ task argocd:ui
 - Use `task <task-name> --summary` to see task details
 - Tasks have dependency checks (will warn if prerequisites missing)
 - Verbose mode available for debugging: `task env:start:verbose`
+
+## Deploying Applications
+
+### Demo API Application
+
+The repository includes a demo FastAPI application for testing deployments:
+
+```bash
+# Deploy demo-api (default application)
+task argocd:deploy-app
+
+# Deploy specific application
+task argocd:deploy-app APP_NAME=demo-api
+
+# Deploy via ArgoCD GitOps
+task argocd:deploy-app -- --use-argocd
+
+# Test the application
+kubectl -n default port-forward svc/demo-api 8000:8000
+
+# In another terminal:
+curl http://localhost:8000/health
+curl http://localhost:8000/ping
+curl -X POST http://localhost:8000/datetime
+curl http://localhost:8000/info
+```
+
+**Endpoints:**
+
+- `GET /health` - Health check (used by probes)
+- `GET /ping` - Simple ping endpoint
+- `POST /datetime` - Returns current UTC datetime
+- `GET /info` - Application information
+
+**Running Tests:**
+
+```bash
+cd k8s/demo-api/app
+python3 -m venv .venv
+source .venv/bin/activate
+pip install fastapi "uvicorn[standard]" pytest httpx
+pytest -v
+```
+
+### Deploying Custom Applications
+
+The `task argocd:deploy-app` command works with any application following the structure:
+
+```text
+k8s/<app-name>/
+├── Chart.yaml
+├── values.yaml
+├── app/
+│   ├── Dockerfile
+│   └── ...
+└── templates/
+    ├── deployment.yaml
+    └── service.yaml
+```
+
+Deploy with:
+
+```bash
+task argocd:deploy-app APP_NAME=<app-name>
+```

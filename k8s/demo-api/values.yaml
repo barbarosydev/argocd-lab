@@ -1,0 +1,20 @@
+# Default values for demo-api application
+replicaCount: 1
+
+image:
+  repository: demo-api
+  tag: latest
+  pullPolicy: Never  # Use local image in Minikube
+
+service:
+  type: ClusterIP
+  port: 8000
+  targetPort: 8000
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 100m
+    memory: 128Mi

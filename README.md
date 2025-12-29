@@ -43,13 +43,17 @@ Minikube Cluster
 
 ```text
 .
+├── argocd/               # Argo CD Application manifests
+│   └── apps/            # Application definitions
 ├── docs/                 # Documentation
 ├── k8s/                  # Helm charts and values
-│   └── argocd/          # Argo CD values
+│   ├── argocd/          # Argo CD values
+│   └── demo-api/        # Demo FastAPI application
 ├── scripts/              # Automation scripts
 │   ├── minikube-start.sh
 │   ├── minikube-stop.sh
 │   ├── argocd-deploy.sh
+│   ├── deploy-app.sh
 │   └── setup-dependencies.sh
 └── Taskfile.yml          # Task definitions
 ```
