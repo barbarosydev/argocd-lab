@@ -1,0 +1,67 @@
+version: '3'
+
+tasks:
+  pre-commit:install:
+    desc: Install pre-commit git hooks
+    silent: true
+    cmds:
+      - pre-commit install
+      - echo "Pre-commit hooks installed"
+
+  pre-commit:run:
+    desc: Run all pre-commit hooks
+    silent: true
+    cmds:
+      - echo "Running pre-commit hooks..."
+      - pre-commit run --all-files
+
+  pre-commit:update:
+    desc: Update pre-commit hook versions
+    silent: true
+    cmds:
+      - pre-commit autoupdate
+      - echo "Pre-commit hooks updated"
+
+  validate:
+    desc: Run all validation checks
+    silent: true
+    deps:
+      - pre-commit:run
+      - task: :docs:build
+
+  lint:shell:
+    desc: Lint shell scripts
+    silent: true
+    cmds:
+      - echo "Linting shell scripts..."
+      - find scripts -name "*.sh" -exec shellcheck {} +
+
+  lint:yaml:
+    desc: Lint YAML files
+    silent: true
+    cmds:
+      - echo "Linting YAML files..."
+      - yamllint . || echo "yamllint not installed"
+
+  lint:markdown:
+    desc: Lint Markdown files
+    silent: true
+    cmds:
+      - echo "Linting Markdown files..."
+      - markdownlint "**/*.md" --ignore node_modules --ignore site || echo "markdownlint not installed"
+
+  format:python:
+    desc: Format Python code
+    silent: true
+    cmds:
+      - echo "Formatting Python code..."
+      - find . -name "*.py" -not -path "*/site/*" -not -path "*/.venv/*" -exec black {} +
+      - find . -name "*.py" -not -path "*/site/*" -not -path "*/.venv/*" -exec isort {} +
+
+  test:demo-api:
+    desc: Run demo-api tests
+    silent: true
+    dir: k8s/demo-api/app
+    cmds:
+      - echo "Running demo-api tests..."
+      - uv run pytest -v

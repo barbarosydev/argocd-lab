@@ -12,6 +12,7 @@
 2. **Values Overrides** - Never fork charts
 3. **Minimal** - Simple scripts, clear YAML
 4. **Task-Based** - Use Taskfile for operations
+5. **Silent Tasks** - All tasks use `silent: true` with human-readable output
 
 ## Repository Structure
 
@@ -20,14 +21,15 @@ argocd-lab/
 ├── argocd/apps/       # Argo CD Application manifests
 ├── docs/              # MkDocs documentation
 ├── k8s/               # Helm charts and values
-│   ├── airflow/
 │   ├── argocd/
-│   └── backend/
+│   └── demo-api/
 ├── scripts/           # Shell scripts (used by Taskfile)
-│   ├── minikube-start.sh
-│   ├── minikube-stop.sh
-│   ├── argocd-deploy.sh
-│   └── setup-dependencies.sh
+├── tasks/             # Task module files
+│   ├── lab.yml
+│   ├── argocd.yml
+│   ├── docs.yml
+│   ├── quality.yml
+│   └── utils.yml
 └── Taskfile.yml       # Task definitions
 ```
 
@@ -36,22 +38,24 @@ argocd-lab/
 ```bash
 # Setup
 task install            # Install tools (macOS)
-task pre-commit:install # Install git hooks
+task quality:pre-commit:install # Install git hooks
 
 # Lab lifecycle
-task lab:start          # Start env + deploy Argo CD
+task lab:start          # Start lab + deploy Argo CD
 task lab:stop           # Stop and cleanup
 task lab:status         # Check status
 task lab:restart        # Restart environment
 
-# Argo CD
+# ArgoCD
 task argocd:password    # Get admin password
 task argocd:ui          # Open browser
+task deploy             # Deploy app (GitOps)
+task undeploy           # Undeploy app
 
 # Development
 task docs:serve         # Serve documentation
 task validate           # Run all checks
-task clean              # Clean artifacts
+task info               # Show environment info
 ```
 
 ## Coding Standards
@@ -68,6 +72,7 @@ task clean              # Clean artifacts
 - 2-space indentation
 - Comments for non-obvious config
 - Group related settings
+- No colons in quoted strings (use plain text)
 
 ### Python
 
@@ -78,13 +83,25 @@ task clean              # Clean artifacts
 ### Taskfile
 
 - Short descriptions (one line)
-- Quote commands with colons
+- All tasks must have `silent: true`
+- Use `echo` for human-readable output
+- Use `deps:` for task dependencies
+- No colons in commit messages or quoted strings
+
+## Deployment Methods
+
+Applications support two deployment methods:
+
+1. **GitOps** (default) - Deploy via ArgoCD using `--method gitops`
+2. **Helm** - Direct Helm deployment using `--method helm`
+
+Scripts auto-detect deployment method and suggest corrections.
 
 ## Adding Applications
 
 1. Create Helm chart in `k8s/<app>/`
 2. Create Argo CD Application in `argocd/apps/<app>.yaml`
-3. Reference in `argocd/apps/app-of-apps.yaml`
+3. Document in `docs/deployment.md`
 
 ## File Naming
 
@@ -93,23 +110,22 @@ task clean              # Clean artifacts
 - Docs: `kebab-case.md`
 - Python: `snake_case.py`
 
+## Documentation
+
+- All documentation in `/docs` directory
+- Only `README.md` allowed in root
+- Update `docs/` when adding features
+- Keep documentation minimal and focused
+
 ## Pre-commit Hooks
 
 Run before committing:
 
 ```bash
-task pre-commit:run
+task quality:pre-commit:run
 ```
 
-Checks: markdown, shell, YAML, Python, Dockerfile, Helm
-
-## Common Tasks
-
-- Add new apps to `k8s/` and `argocd/apps/`
-- Update Helm values in `k8s/*/values.yaml`
-- Improve docs in `docs/`
-- Fix scripts in `scripts/`
-- Add Taskfile tasks
+Checks: markdown, shell, YAML, Python, Dockerfile
 
 ## Resources
 

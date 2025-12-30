@@ -2,6 +2,24 @@
 
 This guide explains how to deploy applications in the ArgoCD Lab environment.
 
+## Deployment Methods
+
+The lab supports two deployment methods:
+
+### GitOps Method (Default)
+
+- Deploys via ArgoCD
+- Continuous sync from Git
+- Self-healing and automated rollback
+- Best for production
+
+### Helm Method
+
+- Direct Helm deployment
+- Quick testing and development
+- No ArgoCD overhead
+- Best for local development
+
 ## Demo API Application
 
 The repository includes a demo FastAPI application (`demo-api`) that demonstrates:
@@ -16,15 +34,27 @@ The repository includes a demo FastAPI application (`demo-api`) that demonstrate
 ### Quick Deploy
 
 ```bash
-# Deploy demo-api application (default)
-task argocd:deploy-app
+# Deploy with GitOps (default - recommended)
+task deploy
 
-# Deploy via ArgoCD GitOps
-task argocd:deploy-app -- --use-argocd
+# Deploy via Helm (for testing)
+task argocd:deploy-app -- --method helm
 
 # Deploy to specific namespace
 task argocd:deploy-app -- --namespace production
 ```
+
+### Undeploy Applications
+
+```bash
+# Undeploy with GitOps (default)
+task undeploy
+
+# Undeploy via Helm
+task argocd:undeploy-app -- --method helm
+```
+
+**Auto-Detection:** If you use the wrong method, the script will detect it and suggest the correct command.
 
 ### Available Endpoints
 

@@ -1,0 +1,66 @@
+version: '3'
+
+tasks:
+  clean:
+    desc: Clean build artifacts
+    silent: true
+    deps:
+      - task: :docs:clean
+    cmds:
+      - rm -f /tmp/argocd-port-forward*.log
+      - find . -type d -name __pycache__ -not -path "*/site/*" -exec rm -rf {} + 2>/dev/null || true
+      - echo "Build artifacts cleaned"
+
+  clean:all:
+    desc: Deep clean (stop lab + clean artifacts)
+    silent: true
+    deps:
+      - task: :lab:stop
+      - clean
+
+  clean:docker:
+    desc: Clean Docker resources
+    silent: true
+    cmds:
+      - docker images | grep demo-api | awk '{print $3}' | xargs -r docker rmi -f || true
+      - echo "Docker images cleaned"
+
+  install:
+    desc: Install required dependencies
+    silent: true
+    cmds:
+      - echo "Installing dependencies..."
+      - ./scripts/setup-dependencies.sh
+
+  update:
+    desc: Update all dependencies
+    silent: true
+    deps:
+      - task: :quality:pre-commit:update
+    cmds:
+      - brew upgrade kubectl helm minikube 2>/dev/null || echo "Homebrew not available"
+      - echo "Dependencies updated"
+
+  info:
+    desc: Show lab environment information
+    silent: true
+    cmds:
+      - echo ""
+      - echo "=== ArgoCD Lab Environment ==="
+      - echo ""
+      - echo "Tool Versions:"
+      - printf "  %-15s %s\n" "kubectl:" "$(kubectl version --client 2>/dev/null | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | head -1 || echo 'Not installed')"
+      - printf "  %-15s %s\n" "helm:" "$(helm version --short 2>/dev/null || echo 'Not installed')"
+      - printf "  %-15s %s\n" "minikube:" "$(minikube version --short 2>/dev/null || echo 'Not installed')"
+      - printf "  %-15s %s\n" "docker:" "$(docker --version 2>/dev/null | cut -d' ' -f3 | tr -d ',' || echo 'Not installed')"
+      - printf "  %-15s %s\n" "uv:" "$(uv --version 2>/dev/null | cut -d' ' -f2 || echo 'Not installed')"
+      - printf "  %-15s %s\n" "jq:" "$(jq --version 2>/dev/null || echo 'Not installed')"
+      - printf "  %-15s %s\n" "task:" "$(task --version 2>/dev/null | cut -d' ' -f3 || echo 'Not installed')"
+      - printf "  %-15s %s\n" "pre-commit:" "$(pre-commit --version 2>/dev/null | cut -d' ' -f2 || echo 'Not installed')"
+      - echo ""
+      - echo "Lab Configuration:"
+      - printf "  %-15s %s\n" "Profile:" "{{.PROFILE}}"
+      - printf "  %-15s %s\n" "Kubernetes:" "{{.K8S_VERSION}}"
+      - printf "  %-15s %s\n" "ArgoCD NS:" "{{.ARGOCD_NAMESPACE}}"
+      - printf "  %-15s %s\n" "ArgoCD Port:" "{{.ARGOCD_PORT}}"
+      - echo ""

@@ -1,188 +1,87 @@
 version: '3'
 
-# Configuration variables
+# Global configuration
 vars:
-  # Cluster configuration
   PROFILE: argocd-lab
-  K8S_VERSION: v1.35.0
-
-  # Argo CD configuration
+  K8S_VERSION: "v1.35.0"
   ARGOCD_NAMESPACE: argocd
   ARGOCD_PORT: 8081
   ARGO_VALUES: k8s/argocd/values.yaml
 
-# Task dependencies and includes can be added here as the project grows
-# includes:
-#   monitoring: ./tasks/monitoring.yml
+# Include task modules
+includes:
+  lab: ./tasks/lab.yml
+  argocd: ./tasks/argocd.yml
+  docs: ./tasks/docs.yml
+  quality: ./tasks/quality.yml
+  utils: ./tasks/utils.yml
 
+# Top-level convenience tasks
 tasks:
-  # ============================================================================
-  # Setup & Installation
-  # ============================================================================
-
-  install:
-    desc: Install required dependencies (macOS with Homebrew)
+  default:
+    desc: Show available tasks
+    silent: true
     cmds:
-      - ./scripts/setup-dependencies.sh
-    silent: false
+      - task --list
 
-  # ============================================================================
-  # Environment Lifecycle
-  # ============================================================================
-
-  env:start:
-    desc: Start Minikube cluster and deploy Argo CD
-    deps: [_check-deps]
+  start:
+    desc: "🚀 Start lab"
+    silent: true
     cmds:
-      - ./scripts/minikube-start.sh --profile {{.PROFILE}} --k8s-version {{.K8S_VERSION}}
-      - ./scripts/argocd-deploy.sh --argocd-namespace {{.ARGOCD_NAMESPACE}} --argo-values {{.ARGO_VALUES}} --port {{.ARGOCD_PORT}}
+      - task: lab:start
 
-  env:start:verbose:
-    desc: Start environment with verbose logging (for debugging)
-    deps: [_check-deps]
-    cmds:
-      - ./scripts/minikube-start.sh --verbose --profile {{.PROFILE}} --k8s-version {{.K8S_VERSION}}
-      - ./scripts/argocd-deploy.sh --verbose --argocd-namespace {{.ARGOCD_NAMESPACE}} --argo-values {{.ARGO_VALUES}} --port {{.ARGOCD_PORT}}
-
-  env:stop:
-    desc: Stop and delete Minikube cluster
-    cmds:
-      - ./scripts/minikube-stop.sh --profile {{.PROFILE}}
-
-  env:restart:
-    desc: Restart the environment (stop + start)
-    cmds:
-      - task: env:stop
-      - task: env:start
-
-  # ============================================================================
-  # Argo CD Management
-  # ============================================================================
-
-  argocd:deploy:
-    desc: Deploy/upgrade Argo CD on existing cluster
-    deps: [_check-cluster]
-    cmds:
-      - ./scripts/argocd-deploy.sh --argocd-namespace {{.ARGOCD_NAMESPACE}} --argo-values {{.ARGO_VALUES}} --port {{.ARGOCD_PORT}}
-
-  argocd:password:
-    desc: Get Argo CD admin password
-    deps: [_check-cluster]
-    cmds:
-      - kubectl -n {{.ARGOCD_NAMESPACE}} get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 --decode && echo
-
-  argocd:ui:
-    desc: Open Argo CD UI in browser
-    deps: [_check-cluster]
-    cmds:
-      - open http://localhost:{{.ARGOCD_PORT}}
-
-  argocd:deploy-app:
-    desc: Build and deploy application (default demo-api)
-    deps: [_check-cluster]
-    cmds:
-      - ./scripts/deploy-app.sh --app-name {{.APP_NAME | default "demo-api"}} --profile {{.PROFILE}} {{.CLI_ARGS}}
-
-  argocd:undeploy-app:
-    desc: Undeploy application (default demo-api)
-    deps: [_check-cluster]
-    cmds:
-      - ./scripts/undeploy-app.sh --app-name {{.APP_NAME | default "demo-api"}} --profile {{.PROFILE}} {{.CLI_ARGS}}
-
-  # ============================================================================
-  # Lab Shortcuts (High-level commands)
-  # ============================================================================
-
-  lab:start:
-    desc: Start the complete lab environment
-    cmds:
-      - task: env:start
-
-  lab:stop:
-    desc: Stop the lab environment
-    cmds:
-      - task: env:stop
-
-  lab:restart:
-    desc: Restart the lab environment
-    cmds:
-      - task: env:restart
-
-  lab:status:
-    desc: Check lab environment status
-    cmds:
-      - ./scripts/check-lab-status.sh
-
-  # ============================================================================
-  # Documentation
-  # ============================================================================
-
-  docs:serve:
-    desc: Serve documentation with live reload
-    cmds:
-      - uv run --project docs mkdocs serve --livereload --watch docs
-
-  docs:build:
-    desc: Build static documentation
-    cmds:
-      - uv run --project docs mkdocs build
-
-  docs:clean:
-    desc: Clean documentation build artifacts
-    cmds:
-      - rm -rf docs/site .venv docs/.venv
-      - find docs -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
-
-  # ============================================================================
-  # Code Quality & Testing
-  # ============================================================================
-
-  pre-commit:install:
-    desc: Install pre-commit git hooks
-    cmds:
-      - pre-commit install
-
-  pre-commit:run:
-    desc: Run all pre-commit hooks on all files
-    cmds:
-      - pre-commit run --all-files
-
-  pre-commit:update:
-    desc: Update pre-commit hook versions
-    cmds:
-      - pre-commit autoupdate
-
-  validate:
-    desc: Run all validation checks (pre-commit + docs build)
-    cmds:
-      - task: pre-commit:run
-      - task: docs:build
-
-  # ============================================================================
-  # Cleanup & Maintenance
-  # ============================================================================
-
-  clean:
-    desc: Clean all build artifacts and temporary files
-    cmds:
-      - task: docs:clean
-      - rm -f /tmp/argocd-port-forward*.log
-      - echo "Cleaned build artifacts"
-
-  clean:all:
-    desc: Deep clean (includes stopping lab)
+  stop:
+    desc: "🛑 Stop lab"
+    silent: true
     cmds:
       - task: lab:stop
-      - task: clean
-      - echo "Deep clean complete"
 
-  # ============================================================================
-  # Internal/Helper Tasks (prefixed with _)
-  # ============================================================================
+  status:
+    desc: "📊 Check status"
+    silent: true
+    cmds:
+      - task: lab:status
+
+  ui:
+    desc: "🌐 Open ArgoCD UI"
+    silent: true
+    cmds:
+      - task: argocd:ui
+
+  deploy:
+    desc: "📦 Deploy app"
+    silent: true
+    cmds:
+      - task: argocd:deploy-app
+
+  undeploy:
+    desc: "🗑️  Undeploy app"
+    silent: true
+    cmds:
+      - task: argocd:undeploy-app
+
+  validate:
+    desc: "✅ Run validation"
+    silent: true
+    cmds:
+      - task: quality:validate
+
+  install:
+    desc: "📥 Install dependencies"
+    silent: true
+    cmds:
+      - task: utils:install
+
+  info:
+    desc: "ℹ️  Show lab info"
+    silent: true
+    cmds:
+      - task: utils:info
 
   _check-deps:
     desc: Check if required commands are installed
     internal: true
+    silent: true
     preconditions:
       - sh: command -v kubectl
         msg: "kubectl is not installed. Run 'task install' first"
@@ -190,12 +89,11 @@ tasks:
         msg: "helm is not installed. Run 'task install' first"
       - sh: command -v minikube
         msg: "minikube is not installed. Run 'task install' first"
-    silent: true
 
   _check-cluster:
     desc: Check if Minikube cluster is running
     internal: true
+    silent: true
     preconditions:
       - sh: minikube status -p {{.PROFILE}} >/dev/null 2>&1
-        msg: "Minikube cluster is not running. Run 'task lab:start' first"
-    silent: true
+        msg: "Minikube cluster is not running. Run 'task start' first"

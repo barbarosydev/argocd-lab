@@ -1,0 +1,38 @@
+version: '3'
+
+tasks:
+  start:
+    desc: Start Minikube cluster and deploy Argo CD
+    silent: true
+    deps:
+      - task: :_check-deps
+    cmds:
+      - ./scripts/minikube-start.sh --profile {{.PROFILE}} --k8s-version {{.K8S_VERSION}}
+      - ./scripts/argocd-deploy.sh --argocd-namespace {{.ARGOCD_NAMESPACE}} --argo-values {{.ARGO_VALUES}} --port {{.ARGOCD_PORT}}
+
+  start:verbose:
+    desc: Start environment with verbose logging
+    deps:
+      - task: :_check-deps
+    cmds:
+      - ./scripts/minikube-start.sh --verbose --profile {{.PROFILE}} --k8s-version {{.K8S_VERSION}}
+      - ./scripts/argocd-deploy.sh --verbose --argocd-namespace {{.ARGOCD_NAMESPACE}} --argo-values {{.ARGO_VALUES}} --port {{.ARGOCD_PORT}}
+
+  stop:
+    desc: Stop and delete Minikube cluster
+    silent: true
+    cmds:
+      - ./scripts/minikube-stop.sh --profile {{.PROFILE}}
+
+  restart:
+    desc: Restart the environment
+    silent: true
+    deps:
+      - stop
+      - start
+
+  status:
+    desc: Check lab environment status
+    silent: true
+    cmds:
+      - ./scripts/check-lab-status.sh

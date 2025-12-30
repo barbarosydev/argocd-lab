@@ -1,166 +1,63 @@
 # Task Reference
 
-Quick reference for all available tasks. Run `task -l` to see the full list.
+Quick reference for available tasks in the ArgoCD Lab.
 
-## Lab Management
-
-```bash
-task lab:start          # Start complete lab (Minikube + Argo CD)
-task lab:stop           # Stop lab and cleanup
-task lab:restart        # Restart the lab
-task lab:status         # Check environment status
-```
-
-## Environment
+## Quick Commands
 
 ```bash
-task env:start          # Start Minikube and deploy Argo CD
-task env:start:verbose  # Start with debug output
-task env:stop           # Stop and delete cluster
-task env:restart        # Restart environment
+task help      # Show all tasks
+task start     # Start lab
+task stop      # Stop lab
+task status    # Check status
+task ui        # Open ArgoCD UI
+task deploy    # Deploy app
+task undeploy  # Undeploy app
+task validate  # Run validation
+task info      # Show environment info
 ```
 
-## Argo CD
+## Lab Commands
 
-```bash
-task argocd:deploy        # Deploy/upgrade Argo CD
-task argocd:deploy-app    # Build and deploy application (default: demo-api)
-task argocd:password      # Get admin password
-task argocd:ui            # Open UI in browser
-```
+- `task lab:start` - Start Minikube cluster and deploy Argo CD
+- `task lab:start:verbose` - Start with verbose logging
+- `task lab:stop` - Stop and delete Minikube cluster
+- `task lab:restart` - Restart the environment
+- `task lab:status` - Check lab environment status
 
-## Documentation
+## ArgoCD Commands
 
-```bash
-task docs:serve         # Serve with live reload
-task docs:build         # Build static site
-task docs:clean         # Clean build artifacts
-```
+- `task argocd:deploy` - Deploy/upgrade Argo CD
+- `task argocd:password` - Get Argo CD admin password
+- `task argocd:ui` - Open Argo CD UI in browser
+- `task argocd:deploy-app` - Deploy application (default demo-api)
+- `task argocd:undeploy-app` - Undeploy application
+- `task argocd:list-apps` - List all ArgoCD applications
+- `task argocd:sync-app` - Sync an ArgoCD application
 
-## Development & Quality
+## Documentation Commands
 
-```bash
-task install            # Install dependencies (first time)
-task pre-commit:install # Install git hooks
-task pre-commit:run     # Run all checks
-task pre-commit:update  # Update hook versions
-task validate           # Run all validation
-```
+- `task docs:serve` - Serve documentation with live reload
+- `task docs:build` - Build static documentation
+- `task docs:clean` - Clean documentation artifacts
+- `task docs:deploy` - Deploy documentation to GitHub Pages
 
-## Cleanup
+## Quality Commands
 
-```bash
-task clean              # Clean build artifacts
-task clean:all          # Deep clean (stop lab + cleanup)
-```
+- `task quality:pre-commit:install` - Install pre-commit git hooks
+- `task quality:pre-commit:run` - Run all pre-commit hooks
+- `task quality:pre-commit:update` - Update pre-commit hook versions
+- `task quality:validate` - Run all validation checks
+- `task quality:lint:shell` - Lint shell scripts
+- `task quality:lint:yaml` - Lint YAML files
+- `task quality:lint:markdown` - Lint Markdown files
+- `task quality:format:python` - Format Python code
+- `task quality:test:demo-api` - Run demo-api tests
 
-## Quick Start
+## Utility Commands
 
-```bash
-# First time setup
-task install
-task pre-commit:install
-
-# Start working
-task lab:start
-task argocd:password
-task argocd:ui
-
-# When done
-task lab:stop
-```
-
-## Accessing Argo CD
-
-After running `task lab:start`:
-
-**URL**: <http://localhost:8081>
-
-**Get Password**:
-
-```bash
-task argocd:password
-```
-
-**Open UI**:
-
-```bash
-task argocd:ui
-```
-
-**Login**:
-
-- Username: admin
-- Password: (from command above)
-
-## Tips
-
-- Use `task -l` to see all available tasks
-- Use `task <task-name> --summary` to see task details
-- Tasks have dependency checks (will warn if prerequisites missing)
-- Verbose mode available for debugging: `task env:start:verbose`
-
-## Deploying Applications
-
-### Demo API Application
-
-The repository includes a demo FastAPI application for testing deployments:
-
-```bash
-# Deploy demo-api (default application)
-task argocd:deploy-app
-
-# Deploy specific application
-task argocd:deploy-app APP_NAME=demo-api
-
-# Deploy via ArgoCD GitOps
-task argocd:deploy-app -- --use-argocd
-
-# Test the application
-kubectl -n default port-forward svc/demo-api 8000:8000
-
-# In another terminal:
-curl http://localhost:8000/health
-curl http://localhost:8000/ping
-curl -X POST http://localhost:8000/datetime
-curl http://localhost:8000/info
-```
-
-**Endpoints:**
-
-- `GET /health` - Health check (used by probes)
-- `GET /ping` - Simple ping endpoint
-- `POST /datetime` - Returns current UTC datetime
-- `GET /info` - Application information
-
-**Running Tests:**
-
-```bash
-cd k8s/demo-api/app
-python3 -m venv .venv
-source .venv/bin/activate
-pip install fastapi "uvicorn[standard]" pytest httpx
-pytest -v
-```
-
-### Deploying Custom Applications
-
-The `task argocd:deploy-app` command works with any application following the structure:
-
-```text
-k8s/<app-name>/
-├── Chart.yaml
-├── values.yaml
-├── app/
-│   ├── Dockerfile
-│   └── ...
-└── templates/
-    ├── deployment.yaml
-    └── service.yaml
-```
-
-Deploy with:
-
-```bash
-task argocd:deploy-app APP_NAME=<app-name>
-```
+- `task utils:clean` - Clean build artifacts
+- `task utils:clean:all` - Deep clean (stop lab + clean artifacts)
+- `task utils:clean:docker` - Clean Docker resources
+- `task utils:install` - Install required dependencies
+- `task utils:update` - Update all dependencies
+- `task utils:info` - Show lab environment information
