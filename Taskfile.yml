@@ -83,6 +83,12 @@ tasks:
     cmds:
       - ./scripts/deploy-app.sh --app-name {{.APP_NAME | default "demo-api"}} --profile {{.PROFILE}} {{.CLI_ARGS}}
 
+  argocd:undeploy-app:
+    desc: Undeploy application (default demo-api)
+    deps: [_check-cluster]
+    cmds:
+      - ./scripts/undeploy-app.sh --app-name {{.APP_NAME | default "demo-api"}} --profile {{.PROFILE}} {{.CLI_ARGS}}
+
   # ============================================================================
   # Lab Shortcuts (High-level commands)
   # ============================================================================

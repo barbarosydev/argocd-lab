@@ -10,7 +10,7 @@ VERBOSE=false
 PROFILE="argocd-lab"
 APP_NAME=""
 NAMESPACE="default"
-USE_ARGOCD=false
+DEPLOY_METHOD="gitops"  # Options: gitops, helm
 
 # Colors for output
 RED='\033[0;31m'
@@ -32,21 +32,26 @@ log_warn() {
 
 show_help() {
   cat << EOF
-Build and deploy applications to Minikube
+Build and deploy applications to Kubernetes
 
 Usage: $(basename "$0") --app-name NAME [OPTIONS]
 
 Options:
   --app-name NAME         Application name (required)
+  --method METHOD         Deployment method: gitops, helm (default: gitops)
   --profile PROFILE       Minikube profile name (default: argocd-lab)
   --namespace NAMESPACE   Kubernetes namespace (default: default)
-  --use-argocd            Deploy via ArgoCD instead of direct Helm
   --verbose               Enable verbose output
   --help                  Show this help message
 
+Deployment Methods:
+  gitops                  Deploy via ArgoCD (GitOps workflow, automated sync)
+  helm                    Deploy directly via Helm (quick testing, no ArgoCD)
+
 Examples:
   $(basename "$0") --app-name demo-api
-  $(basename "$0") --app-name demo-api --use-argocd
+  $(basename "$0") --app-name demo-api --method gitops
+  $(basename "$0") --app-name demo-api --method helm
   $(basename "$0") --app-name demo-api --namespace production
 
 EOF
@@ -59,6 +64,10 @@ while [[ $# -gt 0 ]]; do
       APP_NAME="$2"
       shift 2
       ;;
+    --method)
+      DEPLOY_METHOD="$2"
+      shift 2
+      ;;
     --profile)
       PROFILE="$2"
       shift 2
@@ -66,10 +75,6 @@ while [[ $# -gt 0 ]]; do
     --namespace)
       NAMESPACE="$2"
       shift 2
-      ;;
-    --use-argocd)
-      USE_ARGOCD=true
-      shift
       ;;
     --verbose)
       VERBOSE=true
@@ -91,6 +96,13 @@ done
 if [[ -z "${APP_NAME}" ]]; then
   log_error "Application name is required"
   show_help
+  exit 1
+fi
+
+# Validate deployment method
+if [[ "${DEPLOY_METHOD}" != "gitops" && "${DEPLOY_METHOD}" != "helm" ]]; then
+  log_error "Invalid deployment method: ${DEPLOY_METHOD}"
+  log_error "Valid methods: gitops, helm"
   exit 1
 fi
 
@@ -124,8 +136,8 @@ docker build -t "${APP_NAME}:latest" "${APP_DIR}"
 
 log_info "Docker image ${APP_NAME}:latest built successfully"
 
-if [[ "${USE_ARGOCD}" == "true" ]]; then
-  log_info "Deploying ${APP_NAME} application to ArgoCD..."
+if [[ "${DEPLOY_METHOD}" == "gitops" ]]; then
+  log_info "Deploying ${APP_NAME} via ArgoCD (GitOps method)..."
 
   # Check if ArgoCD manifest exists
   if [[ ! -f "argocd/apps/${APP_NAME}.yaml" ]]; then
