@@ -60,6 +60,16 @@ done
 log "Ensuring namespace: ${ARGOCD_NAMESPACE}"
 kubectl get ns "$ARGOCD_NAMESPACE" >&3 2>&4 || kubectl create ns "$ARGOCD_NAMESPACE" >&3 2>&4
 
+# Check for GitHub PAT if not already set
+if [[ -z "${GITHUB_PAT:-}" ]]; then
+  log "WARNING: GITHUB_PAT environment variable not set"
+  log "For private repositories, set it with: export GITHUB_PAT=ghp_your_token_here"
+  log "Continuing without repository credentials..."
+  export GITHUB_PAT=""
+else
+  log "✓ GitHub PAT detected (will be used for repository access)"
+fi
+
 log "Setting up Helm repository for Argo CD"
 helm repo add argo https://argoproj.github.io/argo-helm >&3 2>&4 || true
 helm repo update >&3 2>&4 || true
@@ -68,7 +78,8 @@ log "Installing Argo CD via Helm"
 helm upgrade --install argocd argo/argo-cd \
   --namespace "$ARGOCD_NAMESPACE" \
   --create-namespace \
-  -f "$ARGO_VALUES" >&3 2>&4
+  -f "$ARGO_VALUES" \
+  --set configs.repositories.argocd-lab-repo.password="${GITHUB_PAT}" >&3 2>&4
 
 log "Waiting for Argo CD deployments to be ready"
 kubectl -n "$ARGOCD_NAMESPACE" rollout status deployment/argocd-server --timeout=180s >&3 2>&4 || true
@@ -86,7 +97,7 @@ if lsof -Pi :"${ARGOCD_PORT}" -sTCP:LISTEN -t >/dev/null 2>&1 ; then
 fi
 
 # Start port-forward
-log "Port-forwarding Argo CD UI to https://localhost:${ARGOCD_PORT}"
+log "Port-forwarding Argo CD UI to http://localhost:${ARGOCD_PORT}"
 nohup kubectl -n "${ARGOCD_NAMESPACE}" port-forward svc/argocd-server "${ARGOCD_PORT}":443 \
   >/tmp/argocd-port-forward.log 2>&1 &
 PORT_FORWARD_PID=$!
@@ -111,5 +122,12 @@ log "  Get admin password:"
 log "  kubectl -n ${ARGOCD_NAMESPACE} get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 --decode && echo"
 log ""
 log "  Or use: task argocd:password"
+log ""
+if [[ -n "${GITHUB_PAT:-}" ]]; then
+  log "  ✓ Repository credentials configured for private GitHub access"
+else
+  log "  ⚠ No GitHub PAT set - private repositories will not be accessible"
+  log "  To configure: export GITHUB_PAT=ghp_your_token_here && task argocd:deploy"
+fi
 log ""
 log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

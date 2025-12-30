@@ -65,6 +65,29 @@ kubectl patch application <app-name> -n argocd \
   --type merge -p '{"operation":{"sync":{}}}'
 ```
 
+## Repository Authentication Errors
+
+**Error**: `Failed to load target state: authentication required: Repository not found`
+
+This error occurs when trying to access a private GitHub repository without credentials.
+
+**Solution**:
+
+1. Create a GitHub Personal Access Token (PAT) with `repo` scope
+2. Set the environment variable:
+
+   ```bash
+   export GITHUB_PAT=ghp_your_token_here
+   ```
+
+3. Redeploy ArgoCD:
+
+   ```bash
+   task argocd:deploy
+   ```
+
+See the **[Private Repository Access](private-repository.md)** guide for detailed instructions.
+
 ## Port Already in Use
 
 **Kill Port-Forward**:

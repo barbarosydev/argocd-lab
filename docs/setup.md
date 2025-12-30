@@ -1,59 +1,85 @@
-# Setup
+# Setup and Configuration
+
+This guide provides instructions for setting up and configuring the ArgoCD Lab environment.
 
 ## Prerequisites
 
-- macOS with Homebrew
-- Docker Desktop running
-- 4GB+ RAM available
+- **macOS**: With [Homebrew](https://brew.sh/) installed.
+- **Docker**: Docker Desktop must be running.
+- **Memory**: At least 4GB of RAM available for Minikube.
 
-## Install
+## Installation
+
+The `install` task sets up all required tools and dependencies.
 
 ```bash
 task install
 ```
 
-Installs: kubectl, helm, minikube, uv, jq, pre-commit
+This command installs:
 
-## Start the Lab
+- `kubectl`: Kubernetes command-line tool.
+- `helm`: Kubernetes package manager.
+- `minikube`: Local Kubernetes environment.
+- `uv`: Python package manager.
+- `jq`: Command-line JSON processor.
+- `pre-commit`: Git hook manager.
+
+## Private Repository Configuration
+
+If you're working with a private GitHub repository, you need to configure a Personal Access Token (PAT) before starting
+the lab.
+
+```bash
+export GITHUB_PAT=ghp_your_token_here
+```
+
+See the **[Private Repository Access](private-repository.md)** guide for detailed instructions.
+
+## Lab Lifecycle
+
+### Start the Lab
+
+The `lab:start` task creates the Minikube cluster and deploys Argo CD.
 
 ```bash
 task lab:start
 ```
 
-This will:
+### Stop the Lab
 
-1. Create Minikube cluster
-2. Install Argo CD
-3. Deploy applications
-
-## Access Argo CD
-
-**URL**: <http://localhost:8081>
-
-**Username**: `admin`
-
-**Get Password**:
-
-```bash
-task argocd:password
-```
-
-## Configuration
-
-Edit `Taskfile.yml` to change defaults:
-
-```yaml
-vars:
-  PROFILE: argocd-lab
-  K8S_VERSION: v1.35.0
-  ARGOCD_NAMESPACE: argocd
-  AIRFLOW_NAMESPACE: airflow
-```
-
-## Stop the Lab
+The `lab:stop` task deletes the Minikube cluster and cleans up resources.
 
 ```bash
 task lab:stop
 ```
 
-Deletes the Minikube cluster and stops port-forwards.
+## Accessing Argo CD
+
+- **URL**: `http://localhost:8081`
+- **Username**: `admin`
+
+To get the admin password, run:
+
+```bash
+task argocd:password
+```
+
+## Environment Configuration
+
+You can customize the lab environment by editing the `vars` section in `Taskfile.yml`.
+
+```yaml
+vars:
+  PROFILE: argocd-lab
+  K8S_VERSION: "v1.35.0"
+  ARGOCD_NAMESPACE: argocd
+  ARGOCD_PORT: 8081
+```
+
+Key variables include:
+
+- `PROFILE`: The Minikube profile name.
+- `K8S_VERSION`: The Kubernetes version to use.
+- `ARGOCD_NAMESPACE`: The namespace for Argo CD.
+- `ARGOCD_PORT`: The port for the Argo CD UI.
