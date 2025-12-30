@@ -1,37 +1,48 @@
-# Welcome
+# Welcome to the ArgoCD Lab
 
-A local Kubernetes lab for learning GitOps with Argo CD on Minikube.
+This project provides a local Kubernetes environment for learning GitOps with Argo CD and Minikube.
 
-## What's Included
+## Core Components
 
-- **Minikube** - Local Kubernetes cluster (v1.35.0)
-- **Argo CD** - GitOps continuous delivery tool
-
-## Quick Links
-
-- **[Setup](setup.md)** - Installation and configuration
-- **[Tasks](tasks.md)** - Common commands
-- **[Troubleshooting](troubleshooting.md)** - Common issues
+- **Minikube**: A local Kubernetes cluster.
+- **Argo CD**: A declarative, GitOps continuous delivery tool.
+- **Helm**: The package manager for Kubernetes.
+- **Taskfile**: A task runner for automating development and operational tasks.
 
 ## Getting Started
 
-```bash
-task install    # Install tools
-task lab:start  # Start Minikube + Argo CD
-```
+To get started with the lab, follow these steps:
 
-Access Argo CD UI at <http://localhost:8081> with username `admin`.
+1. **Installation**: Run the following command to install the necessary tools and dependencies:
 
-Get admin password:
+    ```bash
+    task install
+    ```
 
-```bash
-task argocd:password
-```
+2. **Start the Lab**: Start the Minikube cluster and deploy Argo CD:
 
-## Architecture
+    ```bash
+    task lab:start
+    ```
 
-```text
-Minikube → Argo CD → Applications
-```
+3. **Access Argo CD UI**: Open the Argo CD web interface in your browser:
 
-Argo CD runs in the `argocd` namespace and is ready to manage applications using GitOps principles.
+    ```bash
+    task argocd:ui
+    ```
+
+    The UI is available at `http://localhost:8081`.
+
+4. **Login**: Use the username `admin` and get the password by running:
+
+    ```bash
+    task argocd:password
+    ```
+
+## Next Steps
+
+- **[Setup](setup.md)**: Detailed installation and configuration instructions.
+- **[Private Repository Access](private-repository.md)**: Configure access to private GitHub repositories.
+- **[Deploying Applications](deployment.md)**: Learn how to deploy applications in the lab.
+- **[Task Reference](tasks.md)**: A complete list of available tasks.
+- **[Troubleshooting](troubleshooting.md)**: Solutions to common problems.

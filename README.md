@@ -10,6 +10,9 @@ A local Kubernetes lab for learning GitOps with **Argo CD** on **Minikube**.
 # Install dependencies (macOS)
 task install
 
+# For private repositories, set GitHub PAT
+export GITHUB_PAT=ghp_your_token_here
+
 # Start Minikube and deploy Argo CD
 task lab:start
 
@@ -69,6 +72,7 @@ Minikube Cluster
 Full documentation at [http://localhost:8000](http://localhost:8000) via `task docs:serve`
 
 - **[Setup](docs/setup.md)** - Installation and configuration
+- **[Private Repository Access](docs/private-repository.md)** - Configure GitHub PAT for private repos
 - **[Tasks](docs/tasks.md)** - Command reference
 - **[Troubleshooting](docs/troubleshooting.md)** - Common issues
 
