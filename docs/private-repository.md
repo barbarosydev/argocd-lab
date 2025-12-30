@@ -60,7 +60,7 @@ kubectl get secrets -n argocd -l argocd.argoproj.io/secret-type=repository
 
 ### Authentication Required Error
 
-Failed to load target state: authentication required
+Failed to load the target state: authentication required
 
 Set the `GITHUB_PAT` variable and redeploy:
 
