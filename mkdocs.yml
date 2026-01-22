@@ -1,6 +1,7 @@
 site_name: Argo CD Lab
 site_description: Local Kubernetes lab for learning GitOps with Argo CD
 site_author: barbarosydev
+site_url: https://barbarosydev.github.io/argocd-lab/
 repo_url: https://github.com/barbarosydev/argocd-lab
 repo_name: barbarosydev/argocd-lab
 
