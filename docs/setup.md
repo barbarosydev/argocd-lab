@@ -84,8 +84,7 @@ Key variables (defaults shown):
 - `LAB_ARGOCD_HELM_VERSION=9.3.4` (chart version used by default)
 - `LAB_APP_NAMESPACE=default` (namespace used for direct Helm deploys)
 - `LAB_DEPLOY_METHOD=gitops` (default deploy method for apps)
-- `LAB_FULL_CLEAN=0` (default for `utils:clean`; stops the lab if set to 1)
-- `LAB_DOCKER_CLEAN=0` (default for `utils:clean`; removes `demo-api:*` images if set to 1)
+- `LAB_VERBOSE=0` (set to 1 for debug output)
 - `GITHUB_PAT=` (optional; needed for private repos)
 
 Tasks automatically load `.env` (via `dotenv` in `Taskfile.yml`), and scripts source it without overriding variables you

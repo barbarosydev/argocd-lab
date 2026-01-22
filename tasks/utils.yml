@@ -2,18 +2,14 @@ version: '3'
 
 tasks:
   clean:
-    desc: Clean artifacts (FULL_CLEAN=1 stops lab, DOCKER_CLEAN=1 removes images)
+    desc: Clean local artifacts (safe, does not touch Docker images or cluster)
     silent: true
-    deps:
-      - task: :docs:clean
     cmds:
       - |
-          [[ "${FULL_CLEAN:-${LAB_FULL_CLEAN:-0}}" == "1" ]] && task lab:stop || true
-          rm -f /tmp/argocd-port-forward*.log
-          find . -type d -name __pycache__ -not -path "*/site/*" -exec rm -rf {} + 2>/dev/null || true
-          if [[ "${DOCKER_CLEAN:-${LAB_DOCKER_CLEAN:-0}}" == "1" ]]; then
-            docker images --format '{{.Repository}}:{{.Tag}} {{.ID}}' 2>/dev/null | awk '$1 ~ /^demo-api:/ {print $2}' | xargs -r docker rmi -f 2>/dev/null || true
-          fi
+          echo "[clean] Removing temporary files..."
+          rm -rf site docs/site .venv docs/.venv 2>/dev/null || true
+          find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
+          rm -f /tmp/argocd-port-forward*.log 2>/dev/null || true
           echo "[clean] Done"
 
   install:

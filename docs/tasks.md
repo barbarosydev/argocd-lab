@@ -33,36 +33,24 @@ task info      # Show environment info
 
 ## Utils Commands
 
-- `task utils:clean` - Clean artifacts
+- `task utils:clean` - Clean local artifacts (site, __pycache__, logs)
+- `task utils:install` - Install dependencies
+- `task utils:update` - Update dependencies
+- `task utils:info` - Show environment info
 
-### Cleanup flags
+### Clean behavior
 
-`utils:clean` supports two opt-in flags:
+`utils:clean` is __safe by default__:
 
-- `FULL_CLEAN=1` stops and deletes the Minikube profile before cleaning local artifacts
-- `DOCKER_CLEAN=1` removes `demo-api:*` images (it does not remove unrelated images)
+- Removes: `site/`, `docs/site/`, `.venv/`, `__pycache__/`, port-forward logs
+- Does __not__ remove Docker images (expensive to re-pull)
+- Does __not__ stop the cluster
 
-You can set defaults in `.env` using:
-
-- `LAB_FULL_CLEAN=0|1`
-- `LAB_DOCKER_CLEAN=0|1`
-
-Priority is:
-
-1. Explicit env vars (`FULL_CLEAN`, `DOCKER_CLEAN`)
-2. `.env` defaults (`LAB_FULL_CLEAN`, `LAB_DOCKER_CLEAN`)
-
-Examples:
+To stop the cluster, use `task stop` separately.
 
 ```bash
-# one-off
-FULL_CLEAN=1 DOCKER_CLEAN=1 task utils:clean
-
-# set defaults once in .env
-# LAB_FULL_CLEAN=1
-# LAB_DOCKER_CLEAN=1
-
-task utils:clean
+task utils:clean      # safe clean
+task stop             # stop cluster (separate command)
 ```
 
 ## Quality Commands
