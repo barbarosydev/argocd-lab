@@ -1,48 +1,21 @@
-# Welcome to the ArgoCD Lab
+# ArgoCD Lab
 
-This project provides a local Kubernetes environment for learning GitOps with Argo CD and Minikube.
+Local Kubernetes environment for learning GitOps with Argo CD.
 
-## Core Components
+## Quick Start
 
-- **Minikube**: A local Kubernetes cluster.
-- **Argo CD**: A declarative, GitOps continuous delivery tool.
-- **Helm**: The package manager for Kubernetes.
-- **Taskfile**: A task runner for automating development and operational tasks.
+```bash
+task utils:install    # Install tools (macOS)
+task lab:up           # Start minikube + Argo CD
+task argocd:password  # Get admin password
+task argocd:ui        # Open UI (http://localhost:8081)
+```
 
-## Getting Started
-
-To get started with the lab, follow these steps:
-
-1. **Installation**: Run the following command to install the necessary tools and dependencies:
-
-    ```bash
-    task install
-    ```
-
-2. **Start the Lab**: Start the Minikube cluster and deploy Argo CD:
-
-    ```bash
-    task lab:start
-    ```
-
-3. **Access Argo CD UI**: Open the Argo CD web interface in your browser:
-
-    ```bash
-    task argocd:ui
-    ```
-
-    The UI is available at `http://localhost:8081`.
-
-4. **Login**: Use the username `admin` and get the password by running:
-
-    ```bash
-    task argocd:password
-    ```
+Login: `admin` / password from above.
 
 ## Next Steps
 
-- **[Setup](setup.md)**: Detailed installation and configuration instructions.
-- **[Private Repository Access](private-repository.md)**: Configure access to private GitHub repositories.
-- **[Deploying Applications](deployment.md)**: Learn how to deploy applications in the lab.
-- **[Task Reference](tasks.md)**: A complete list of available tasks.
-- **[Troubleshooting](troubleshooting.md)**: Solutions to common problems.
+- [Setup](setup.md) – Installation & configuration
+- [Deployment](deployment.md) – Deploy applications
+- [Tasks](tasks.md) – Command reference
+- [Troubleshooting](troubleshooting.md) – Common issues

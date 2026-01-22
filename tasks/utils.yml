@@ -2,7 +2,7 @@ version: '3'
 
 tasks:
   clean:
-    desc: Clean local artifacts (safe, does not touch Docker images or cluster)
+    desc: "⚙️ Clean local artifacts"
     silent: true
     cmds:
       - |
@@ -13,13 +13,13 @@ tasks:
           echo "[clean] Done"
 
   install:
-    desc: Install required dependencies
+    desc: "⚙️ Install dependencies"
     silent: true
     cmds:
       - ./scripts/setup-dependencies.sh
 
   update:
-    desc: Update all dependencies
+    desc: "⚙️ Update dependencies"
     silent: true
     deps:
       - task: :quality:pre-commit:update
@@ -27,7 +27,7 @@ tasks:
       - brew upgrade kubectl helm minikube 2>/dev/null || echo "[update] Homebrew not available"
 
   info:
-    desc: Show lab environment information
+    desc: "⚙️ Show environment info"
     silent: true
     cmds:
       - |

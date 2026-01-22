@@ -1,8 +1,8 @@
 version: '3'
 
 tasks:
-  deploy:
-    desc: Deploy/upgrade Argo CD
+  bootstrap:
+    desc: "🔄 Deploy/upgrade Argo CD"
     silent: true
     deps:
       - task: :_check-cluster
@@ -10,7 +10,7 @@ tasks:
       - ./scripts/argocd-deploy.sh --argocd-namespace {{.ARGOCD_NAMESPACE}} --argo-values {{.ARGO_VALUES}} --port {{.ARGOCD_PORT}}
 
   password:
-    desc: Get Argo CD admin password
+    desc: "🔄 Get admin password"
     silent: true
     deps:
       - task: :_check-cluster
@@ -18,7 +18,7 @@ tasks:
       - kubectl -n {{.ARGOCD_NAMESPACE}} get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d && echo
 
   ui:
-    desc: Open Argo CD UI in browser
+    desc: "🔄 Open UI in browser"
     silent: true
     deps:
       - task: :_check-cluster
@@ -26,7 +26,7 @@ tasks:
       - open http://localhost:{{.ARGOCD_PORT}}
 
   deploy-app:
-    desc: Deploy application (default demo-api)
+    desc: "🔄 Deploy application"
     silent: true
     deps:
       - task: :_check-cluster
@@ -34,7 +34,7 @@ tasks:
       - ./scripts/deploy-app.sh --app-name {{.APP_NAME | default "demo-api"}} --profile {{.PROFILE}} {{.CLI_ARGS}}
 
   undeploy-app:
-    desc: Undeploy application (default demo-api)
+    desc: "🔄 Undeploy application"
     silent: true
     deps:
       - task: :_check-cluster

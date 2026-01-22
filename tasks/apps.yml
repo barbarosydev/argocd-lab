@@ -1,0 +1,25 @@
+version: '3'
+
+tasks:
+  sync:
+    desc: "📦 Sync all ArgoCD applications"
+    silent: true
+    deps:
+      - task: :_check-cluster
+    cmds:
+      - |
+        echo "[apps] Syncing ArgoCD applications..."
+        for app in argocd/apps/*.yaml; do
+          [ -f "$app" ] || continue
+          kubectl apply -f "$app"
+          echo "[apps] Applied $(basename "$app")"
+        done
+        echo "[apps] Sync complete."
+
+  list:
+    desc: "📦 List deployed applications"
+    silent: true
+    deps:
+      - task: :_check-cluster
+    cmds:
+      - kubectl get applications -n {{.ARGOCD_NAMESPACE}} -o wide 2>/dev/null || echo "[apps] No applications found"

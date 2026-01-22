@@ -20,7 +20,7 @@ log_info "=== Lab Status ==="
 if minikube status -p "$PROFILE" >/dev/null 2>&1; then
   log_info "Minikube: Running"
 else
-  log_warn "Minikube: Not running (task start)"
+  log_warn "Minikube: Not running (task up)"
 fi
 
 # Kubectl context

@@ -1,56 +1,31 @@
 # Private Repository Access
 
-Configure ArgoCD to access your private GitHub repository using a Personal Access Token.
+Configure ArgoCD to access private GitHub repositories.
 
-## Creating a GitHub Personal Access Token
+## Create GitHub Token
 
-1. Go to GitHub Settings → Developer settings → Personal access tokens → **Fine-grained tokens**
-2. Click "Generate new token"
-3. Configure the token:
-    - **Token name**: `ArgoCD Lab Access`
-    - **Expiration**: 90 days (recommended)
-    - **Repository access**: Select "Only select repositories"
-    - Choose your repository: `barbarosydev/argocd-lab`
-4. Under "Repository permissions":
-    - **Contents**: Read-only
-    - **Metadata**: Read-only (auto-selected)
-5. Click "Generate token"
-6. **Copy the token immediately**
+1. GitHub → Settings → Developer settings → Personal access tokens → **Fine-grained tokens**
+2. Generate new token:
+    - **Name**: `ArgoCD Lab`
+    - **Expiration**: 90 days
+    - **Repository access**: Select your repo
+    - **Permissions**: Contents (Read-only)
+3. Copy the token
 
-## Configuration
-
-### Set Environment Variable
-
-Export your GitHub PAT:
+## Configure
 
 ```bash
 export GITHUB_PAT=ghp_your_token_here
+task up    # Or: task argocd:bootstrap (if already running)
 ```
 
-For persistence, add to your shell profile:
+For persistence:
 
 ```bash
 echo 'export GITHUB_PAT=ghp_your_token_here' >> ~/.zshrc
-source ~/.zshrc
 ```
 
-### Deploy ArgoCD
-
-```bash
-task lab:start
-```
-
-Or redeploy if already running:
-
-```bash
-task argocd:deploy
-```
-
-The script automatically detects and configures the credentials.
-
-## Verification
-
-Check that credentials are configured:
+## Verify
 
 ```bash
 kubectl get secrets -n argocd -l argocd.argoproj.io/secret-type=repository
@@ -58,24 +33,11 @@ kubectl get secrets -n argocd -l argocd.argoproj.io/secret-type=repository
 
 ## Troubleshooting
 
-### Authentication Required Error
-
-Failed to load the target state: authentication required
-
-Set the `GITHUB_PAT` variable and redeploy:
+**Authentication errors?** Set token and redeploy:
 
 ```bash
 export GITHUB_PAT=ghp_your_token_here
-task argocd:deploy
-```
-
-### Invalid or Expired Token
-
-Generate a new PAT, update the variable, and redeploy:
-
-```bash
-export GITHUB_PAT=ghp_your_new_token
-task argocd:deploy
+task argocd:bootstrap
 ```
 
 ## Security Best Practices

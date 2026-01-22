@@ -7,6 +7,7 @@ dotenv:
 vars:
   PROFILE: '{{.LAB_MINIKUBE_PROFILE | default "argocd-lab"}}'
   K8S_VERSION: '{{.LAB_K8S_VERSION | default "v1.35.0"}}'
+  MINIKUBE_DRIVER: '{{.LAB_MINIKUBE_DRIVER | default "docker"}}'
   ARGOCD_NAMESPACE: '{{.LAB_ARGOCD_NAMESPACE | default "argocd"}}'
   ARGOCD_PORT: '{{.LAB_ARGOCD_PORT | default 8081}}'
   ARGO_VALUES: '{{.LAB_ARGO_VALUES | default "k8s/argocd/values.yaml"}}'
@@ -15,11 +16,12 @@ vars:
 includes:
   lab: ./tasks/lab.yml
   argocd: ./tasks/argocd.yml
+  apps: ./tasks/apps.yml
   docs: ./tasks/docs.yml
   quality: ./tasks/quality.yml
   utils: ./tasks/utils.yml
 
-# Top-level convenience tasks
+# Top-level tasks
 tasks:
   default:
     desc: Show available tasks
@@ -27,56 +29,8 @@ tasks:
     cmds:
       - task --list
 
-  start:
-    desc: "🚀 Start lab"
-    silent: true
-    cmds:
-      - task: lab:start
-
-  stop:
-    desc: "🛑 Stop lab"
-    silent: true
-    cmds:
-      - task: lab:stop
-
-  status:
-    desc: "📊 Check status"
-    silent: true
-    cmds:
-      - task: lab:status
-
-  ui:
-    desc: "🌐 Open ArgoCD UI"
-    silent: true
-    cmds:
-      - task: argocd:ui
-
-  deploy:
-    desc: "📦 Deploy app"
-    silent: true
-    cmds:
-      - task: argocd:deploy-app
-
-  undeploy:
-    desc: "🗑️  Undeploy app"
-    silent: true
-    cmds:
-      - task: argocd:undeploy-app
-
-  validate:
-    desc: "✅ Run validation"
-    silent: true
-    cmds:
-      - task: quality:validate
-
-  install:
-    desc: "📥 Install dependencies"
-    silent: true
-    cmds:
-      - task: utils:install
-
   init:
-    desc: "Create .env from template"
+    desc: "🌱  Create .env from template"
     silent: true
     cmds:
       - |
@@ -87,28 +41,20 @@ tasks:
             echo "[init] Created .env from env.example"
           fi
 
-  info:
-    desc: "ℹ️  Show lab info"
-    silent: true
-    cmds:
-      - task: utils:info
-
   _check-deps:
-    desc: Check if required commands are installed
     internal: true
     silent: true
     preconditions:
       - sh: command -v kubectl
-        msg: "kubectl is not installed. Run 'task install' first"
+        msg: "kubectl is not installed. Run 'task utils:install' first"
       - sh: command -v helm
-        msg: "helm is not installed. Run 'task install' first"
+        msg: "helm is not installed. Run 'task utils:install' first"
       - sh: command -v minikube
-        msg: "minikube is not installed. Run 'task install' first"
+        msg: "minikube is not installed. Run 'task utils:install' first"
 
   _check-cluster:
-    desc: Check if Minikube cluster is running
     internal: true
     silent: true
     preconditions:
       - sh: minikube status -p {{.PROFILE}} >/dev/null 2>&1
-        msg: "Minikube cluster is not running. Run 'task start' first"
+        msg: "Minikube cluster is not running. Run 'task lab:up' first"

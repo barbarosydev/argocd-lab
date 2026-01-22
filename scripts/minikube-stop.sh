@@ -8,11 +8,13 @@ load_env
 LOG_PREFIX="minikube-stop"
 
 PROFILE="${LAB_MINIKUBE_PROFILE:-argocd-lab}"
+PAUSE_MODE=false
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --profile) PROFILE="${2:?--profile requires a value}"; shift 2 ;;
-    -h|--help) echo "Usage: $0 [--profile NAME]"; exit 0 ;;
+    --pause) PAUSE_MODE=true; shift ;;
+    -h|--help) echo "Usage: $0 [--profile NAME] [--pause]"; exit 0 ;;
     *) log_error "Unknown arg: $1"; exit 1 ;;
   esac
 done
@@ -20,8 +22,13 @@ done
 require_cmd minikube jq
 
 if minikube profile list -o json 2>/dev/null | jq -e --arg p "$PROFILE" '.valid[]?.Name == $p' >/dev/null; then
-  log_info "Deleting Minikube profile '${PROFILE}'"
-  minikube delete -p "$PROFILE"
+  if [[ "$PAUSE_MODE" == "true" ]]; then
+    log_info "Stopping Minikube profile '${PROFILE}' (preserving data)"
+    minikube stop -p "$PROFILE"
+  else
+    log_info "Deleting Minikube profile '${PROFILE}'"
+    minikube delete -p "$PROFILE"
+  fi
 else
   log_info "Profile '${PROFILE}' not found"
 fi
