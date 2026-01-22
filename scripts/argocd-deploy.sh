@@ -1,133 +1,50 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# argocd-deploy.sh: install/upgrade Argo CD on Minikube
-# Usage:
-#   scripts/argocd-deploy.sh --argocd-namespace argocd --argo-values k8s/argocd/values.yaml --port 8081
+# shellcheck source=scripts/lib/common.sh
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib/common.sh"
 
-ARGOCD_NAMESPACE=${ARGOCD_NAMESPACE:-argocd}
-ARGO_VALUES=${ARGO_VALUES:-k8s/argocd/values.yaml}
-ARGOCD_PORT=${ARGOCD_PORT:-8081}
-VERBOSE=${LAB_VERBOSE:-0}
+load_env
+LOG_PREFIX="argocd-deploy"
 
-log() { echo "[argocd-deploy] $1"; }
-err() { echo "[argocd-deploy] ERROR: $1" >&2; }
+ARGOCD_NAMESPACE="${LAB_ARGOCD_NAMESPACE:-argocd}"
+ARGO_VALUES="${LAB_ARGO_VALUES:-k8s/argocd/values.yaml}"
+ARGOCD_PORT="${LAB_ARGOCD_PORT:-8081}"
+ARGOCD_HELM_VERSION="${LAB_ARGOCD_HELM_VERSION:-9.3.4}"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --argocd-namespace)
-      ARGOCD_NAMESPACE=${2:-}
-      [[ -z "$ARGOCD_NAMESPACE" ]] && { err "--argocd-namespace requires a value"; exit 1; }
-      shift 2
-      ;;
-    --argo-values)
-      ARGO_VALUES=${2:-}
-      [[ -z "$ARGO_VALUES" ]] && { err "--argo-values requires a value"; exit 1; }
-      shift 2
-      ;;
-    --port)
-      ARGOCD_PORT=${2:-}
-      [[ -z "$ARGOCD_PORT" ]] && { err "--port requires a value"; exit 1; }
-      shift 2
-      ;;
-    --verbose)
-      VERBOSE=1
-      shift 1
-      ;;
-    -h|--help)
-      echo "Usage: $0 [--argocd-namespace NAME] [--argo-values PATH] [--port PORT] [--verbose]"
-      exit 0
-      ;;
-    *)
-      err "Unknown arg: $1"
-      exit 1
-      ;;
+    --argocd-namespace) ARGOCD_NAMESPACE="${2:?requires value}"; shift 2 ;;
+    --argo-values) ARGO_VALUES="${2:?requires value}"; shift 2 ;;
+    --port) ARGOCD_PORT="${2:?requires value}"; shift 2 ;;
+    -h|--help) echo "Usage: $0 [--argocd-namespace NAME] [--argo-values PATH] [--port PORT]"; exit 0 ;;
+    *) log_error "Unknown arg: $1"; exit 1 ;;
   esac
 done
 
-if [[ ${VERBOSE} -eq 1 ]]; then
-  set -x
-  exec 3>&1 4>&2
-else
-  exec 3>/dev/null 4>/dev/null
-fi
+require_cmd kubectl helm
 
-log "Checking required commands: kubectl, helm"
-for cmd in kubectl helm; do
-  command -v "$cmd" >/dev/null 2>&1 || { err "'$cmd' is not installed"; exit 1; }
-done
+log_info "Deploying Argo CD (ns=${ARGOCD_NAMESPACE}, chart=${ARGOCD_HELM_VERSION})"
 
-log "Ensuring namespace: ${ARGOCD_NAMESPACE}"
-kubectl get ns "$ARGOCD_NAMESPACE" >&3 2>&4 || kubectl create ns "$ARGOCD_NAMESPACE" >&3 2>&4
+kubectl get ns "$ARGOCD_NAMESPACE" >/dev/null 2>&1 || kubectl create ns "$ARGOCD_NAMESPACE"
 
-# Check for GitHub PAT if not already set
-if [[ -z "${GITHUB_PAT:-}" ]]; then
-  log "WARNING: GITHUB_PAT environment variable not set"
-  log "For private repositories, set it with: export GITHUB_PAT=ghp_your_token_here"
-  log "Continuing without repository credentials..."
-  export GITHUB_PAT=""
-else
-  log "✓ GitHub PAT detected (will be used for repository access)"
-fi
+helm repo add argo https://argoproj.github.io/argo-helm >/dev/null 2>&1 || true
+helm repo update >/dev/null 2>&1
 
-log "Setting up Helm repository for Argo CD"
-helm repo add argo https://argoproj.github.io/argo-helm >&3 2>&4 || true
-helm repo update >&3 2>&4 || true
+HELM_ARGS=(--namespace "$ARGOCD_NAMESPACE" --create-namespace -f "$ARGO_VALUES" --version "$ARGOCD_HELM_VERSION")
+[[ -n "${GITHUB_PAT:-}" ]] && HELM_ARGS+=(--set "configs.repositories.argocd-lab-repo.password=${GITHUB_PAT}")
 
-log "Installing Argo CD via Helm"
-helm upgrade --install argocd argo/argo-cd \
-  --namespace "$ARGOCD_NAMESPACE" \
-  --create-namespace \
-  -f "$ARGO_VALUES" \
-  --set configs.repositories.argocd-lab-repo.password="${GITHUB_PAT}" >&3 2>&4
+helm upgrade --install argocd argo/argo-cd "${HELM_ARGS[@]}" >/dev/null 2>&1
 
-log "Waiting for Argo CD deployments to be ready"
-kubectl -n "$ARGOCD_NAMESPACE" rollout status deployment/argocd-server --timeout=180s >&3 2>&4 || true
-kubectl -n "$ARGOCD_NAMESPACE" rollout status deployment/argocd-repo-server --timeout=180s >&3 2>&4 || true
-kubectl -n "$ARGOCD_NAMESPACE" rollout status deployment/argocd-application-controller --timeout=180s >&3 2>&4 || true
+log_info "Waiting for Argo CD to be ready..."
+kubectl -n "$ARGOCD_NAMESPACE" rollout status deployment/argocd-server --timeout=180s >/dev/null 2>&1 || true
 
-log "Starting Argo CD UI port-forward"
+# Port-forward
+pkill -f "kubectl port-forward svc/argocd-server" 2>/dev/null || true
+sleep 1
+nohup kubectl -n "${ARGOCD_NAMESPACE}" port-forward svc/argocd-server "${ARGOCD_PORT}":443 >/tmp/argocd-port-forward.log 2>&1 &
+sleep 2
 
-# Check if port is already in use
-if lsof -Pi :"${ARGOCD_PORT}" -sTCP:LISTEN -t >/dev/null 2>&1 ; then
-  log "WARNING: Port ${ARGOCD_PORT} is already in use"
-  log "Killing existing port-forward processes..."
-  pkill -f "kubectl port-forward svc/argocd-server" || true
-  sleep 2
-fi
-
-# Start port-forward
-log "Port-forwarding Argo CD UI to http://localhost:${ARGOCD_PORT}"
-nohup kubectl -n "${ARGOCD_NAMESPACE}" port-forward svc/argocd-server "${ARGOCD_PORT}":443 \
-  >/tmp/argocd-port-forward.log 2>&1 &
-PORT_FORWARD_PID=$!
-
-# Wait a bit and check if port-forward is successful
-sleep 3
-if ps -p $PORT_FORWARD_PID > /dev/null 2>&1; then
-  log "✓ Port-forward started successfully (PID: $PORT_FORWARD_PID)"
-else
-  err "Port-forward failed to start. Check /tmp/argocd-port-forward.log"
-  cat /tmp/argocd-port-forward.log
-  exit 1
-fi
-
-log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-log "✓ Argo CD deployment complete!"
-log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-log ""
-log "  Access Argo CD UI: http://localhost:${ARGOCD_PORT}"
-log ""
-log "  Get admin password:"
-log "  kubectl -n ${ARGOCD_NAMESPACE} get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 --decode && echo"
-log ""
-log "  Or use: task argocd:password"
-log ""
-if [[ -n "${GITHUB_PAT:-}" ]]; then
-  log "  ✓ Repository credentials configured for private GitHub access"
-else
-  log "  ⚠ No GitHub PAT set - private repositories will not be accessible"
-  log "  To configure: export GITHUB_PAT=ghp_your_token_here && task argocd:deploy"
-fi
-log ""
-log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+log_info "Argo CD ready at http://localhost:${ARGOCD_PORT}"
+log_info "Get password: task argocd:password"
+[[ -z "${GITHUB_PAT:-}" ]] && log_warn "GITHUB_PAT not set - private repos won't work"

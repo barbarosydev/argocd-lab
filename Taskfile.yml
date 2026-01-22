@@ -1,12 +1,15 @@
 version: '3'
 
+dotenv:
+  - .env
+
 # Global configuration
 vars:
-  PROFILE: argocd-lab
-  K8S_VERSION: "v1.35.0"
-  ARGOCD_NAMESPACE: argocd
-  ARGOCD_PORT: 8081
-  ARGO_VALUES: k8s/argocd/values.yaml
+  PROFILE: '{{.LAB_MINIKUBE_PROFILE | default "argocd-lab"}}'
+  K8S_VERSION: '{{.LAB_K8S_VERSION | default "v1.35.0"}}'
+  ARGOCD_NAMESPACE: '{{.LAB_ARGOCD_NAMESPACE | default "argocd"}}'
+  ARGOCD_PORT: '{{.LAB_ARGOCD_PORT | default 8081}}'
+  ARGO_VALUES: '{{.LAB_ARGO_VALUES | default "k8s/argocd/values.yaml"}}'
 
 # Include task modules
 includes:
@@ -71,6 +74,18 @@ tasks:
     silent: true
     cmds:
       - task: utils:install
+
+  init:
+    desc: "Create .env from template"
+    silent: true
+    cmds:
+      - |
+          if [ -f .env ]; then
+            echo "[init] .env already exists"
+          else
+            cp env.example .env
+            echo "[init] Created .env from env.example"
+          fi
 
   info:
     desc: "ℹ️  Show lab info"

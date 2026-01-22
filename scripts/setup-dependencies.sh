@@ -1,33 +1,35 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-log() { echo "[setup-dependencies] $1"; }
+# Shared helpers
+# shellcheck source=scripts/lib/common.sh
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib/common.sh"
+
+LOG_PREFIX="setup"
 
 # Ensure Homebrew is available
 if ! command -v brew >/dev/null 2>&1; then
-  echo "Homebrew is required on macOS. Install from https://brew.sh" >&2
+  log_error "Homebrew is required on macOS. Install from https://brew.sh"
   exit 1
 fi
 
-# Update brew
-log "Updating Homebrew"
+log_info "Updating Homebrew"
 brew update
 
-# Install CLI tools via Homebrew (macOS only)
-# Docs are managed via uv (see docs/pyproject.toml), so mkdocs packages are not installed via Homebrew.
-for pkg in jq minikube kubectl helm uv pre-commit; do
+PACKAGES=(jq minikube kubectl helm uv pre-commit)
+for pkg in "${PACKAGES[@]}"; do
   if brew list --formula "$pkg" >/dev/null 2>&1; then
-    log "'$pkg' already installed"
+    log_debug "'$pkg' already installed"
   else
-    log "Installing '$pkg'"
+    log_info "Installing '$pkg'"
     brew install "$pkg"
   fi
 done
 
 # Install pre-commit hooks if in a git repository
 if [ -d .git ]; then
-  log "Installing pre-commit hooks"
+  log_info "Installing pre-commit hooks"
   pre-commit install
 fi
 
-log "Install complete (macOS only)"
+log_info "Setup complete"
