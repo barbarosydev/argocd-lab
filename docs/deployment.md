@@ -26,9 +26,11 @@ task argocd:undeploy-app -- --method helm   # Helm
 ### Test
 
 ```bash
-kubectl port-forward svc/demo-api 8080:80
+# Port-forward the service (runs in foreground)
+kubectl port-forward svc/demo-api 8080:8000
 
-# In another terminal
+# In another terminal, test the endpoints
 curl http://localhost:8080/health
 curl http://localhost:8080/ping
+curl http://localhost:8080/info
 ```
