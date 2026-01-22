@@ -1,30 +1,29 @@
 version: '3'
 
 tasks:
-  start:
-    desc: Start Minikube cluster and deploy Argo CD
+  up:
+    desc: "🔬 Start minikube and deploy ArgoCD"
     silent: true
     deps:
       - task: :_check-deps
     cmds:
-      - ./scripts/minikube-start.sh --profile {{.PROFILE}} --k8s-version {{.K8S_VERSION}}
+      - ./scripts/minikube-start.sh --profile {{.PROFILE}} --k8s-version {{.K8S_VERSION}} --driver {{.MINIKUBE_DRIVER}}
       - ./scripts/argocd-deploy.sh --argocd-namespace {{.ARGOCD_NAMESPACE}} --argo-values {{.ARGO_VALUES}} --port {{.ARGOCD_PORT}}
 
-  stop:
-    desc: Stop and delete Minikube cluster
+  down:
+    desc: "🔬 Stop minikube (preserves data)"
+    silent: true
+    cmds:
+      - ./scripts/minikube-stop.sh --profile {{.PROFILE}} --pause
+
+  nuke:
+    desc: "🔬 Delete minikube and all data"
     silent: true
     cmds:
       - ./scripts/minikube-stop.sh --profile {{.PROFILE}}
 
-  restart:
-    desc: Restart the environment
-    silent: true
-    cmds:
-      - task: stop
-      - task: start
-
   status:
-    desc: Check lab environment status
+    desc: "🔬 Check lab status"
     silent: true
     cmds:
       - ./scripts/check-lab-status.sh

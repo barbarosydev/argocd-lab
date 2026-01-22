@@ -37,25 +37,25 @@ argocd-lab/
 
 ```bash
 # Setup
-task install            # Install tools (macOS)
+task utils:install              # Install tools (macOS)
 task quality:pre-commit:install # Install git hooks
 
 # Lab lifecycle
-task lab:start          # Start lab + deploy Argo CD
-task lab:stop           # Stop and cleanup
-task lab:status         # Check status
-task lab:restart        # Restart environment
+task lab:up                     # Start lab (minikube + ArgoCD)
+task lab:down                   # Stop lab (preserves data)
+task lab:nuke                   # Delete lab completely
+task lab:status                 # Check status
 
 # ArgoCD
-task argocd:password    # Get admin password
-task argocd:ui          # Open browser
-task deploy             # Deploy app (GitOps)
-task undeploy           # Undeploy app
+task argocd:password            # Get admin password
+task argocd:ui                  # Open browser
+task argocd:deploy-app          # Deploy app (GitOps)
+task argocd:undeploy-app        # Undeploy app
 
 # Development
-task docs:serve         # Serve documentation
-task validate           # Run all checks
-task info               # Show environment info
+task docs:serve                 # Serve documentation
+task quality:validate           # Run all checks
+task utils:info                 # Show environment info
 ```
 
 ## Coding Standards

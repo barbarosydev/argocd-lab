@@ -2,7 +2,7 @@ version: '3'
 
 tasks:
   serve:
-    desc: Serve documentation with live reload
+    desc: "📚 Serve docs with live reload"
     silent: true
     cmds:
       - |
@@ -10,7 +10,7 @@ tasks:
           uv run --project docs mkdocs serve --livereload --watch docs
 
   build:
-    desc: Build static documentation
+    desc: "📚 Build static documentation"
     silent: true
     cmds:
       - |
@@ -19,7 +19,7 @@ tasks:
           echo "[docs] Output: site/"
 
   clean:
-    desc: Clean documentation artifacts
+    desc: "📚 Clean documentation artifacts"
     silent: true
     cmds:
       - |
@@ -28,7 +28,7 @@ tasks:
           echo "[docs] Cleaned"
 
   deploy:
-    desc: Deploy documentation to GitHub Pages
+    desc: "📚 Deploy to GitHub Pages"
     silent: true
     cmds:
       - |

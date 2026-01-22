@@ -47,4 +47,6 @@ sleep 2
 
 log_info "Argo CD ready at http://localhost:${ARGOCD_PORT}"
 log_info "Get password: task argocd:password"
-[[ -z "${GITHUB_PAT:-}" ]] && log_warn "GITHUB_PAT not set - private repos won't work"
+if [[ -z "${GITHUB_PAT:-}" ]]; then
+  log_warn "GITHUB_PAT not set - private repos won't work"
+fi

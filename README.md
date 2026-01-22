@@ -2,89 +2,43 @@
 
 [![CI](https://github.com/barbarosydev/argocd-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/barbarosydev/argocd-lab/actions)
 
-A local Kubernetes lab for learning GitOps with **Argo CD** on **Minikube**.
+Local Kubernetes lab for learning **GitOps** with **Argo CD** on **Minikube**.
 
 ## Quick Start
 
 ```bash
-# Install dependencies (macOS)
-task install
-
-# For private repositories, set GitHub PAT
-export GITHUB_PAT=ghp_your_token_here
-
-# Start Minikube and deploy Argo CD
-task lab:start
-
-# Get Argo CD admin password
-task argocd:password
-
-# Access Argo CD UI at http://localhost:8081
-# Username: admin
-# Password: (from command above)
+task utils:install     # Install tools (macOS)
+task lab:up            # Start minikube + Argo CD
+task argocd:password   # Get admin password
+task argocd:ui         # Open UI (http://localhost:8081, user: admin)
 ```
 
-## Architecture
+> **Private repos?** Set `export GITHUB_PAT=ghp_...` before `task lab:up`
+
+## Commands
+
+| Command                  | Description               |
+|--------------------------|---------------------------|
+| `task lab:up`            | Start minikube + Argo CD  |
+| `task lab:down`          | Stop lab (preserves data) |
+| `task lab:nuke`          | Delete lab completely     |
+| `task lab:status`        | Check lab status          |
+| `task argocd:password`   | Get admin password        |
+| `task argocd:deploy-app` | Deploy demo app           |
+
+## Structure
 
 ```text
-Minikube Cluster
-└── Argo CD (argocd namespace)
-    └── Ready to deploy applications
+argocd/apps/     # Argo CD Application manifests
+k8s/             # Helm charts (argocd, demo-api)
+scripts/         # Automation scripts
+docs/            # Documentation
 ```
 
-## Key Commands
+## Docs
 
-| Command                | Description                |
-|------------------------|----------------------------|
-| `task install`         | Install tools (macOS)      |
-| `task lab:start`       | Start Minikube + Argo CD   |
-| `task lab:stop`        | Stop and cleanup           |
-| `task argocd:password` | Get Argo CD admin password |
-| `task docs:serve`      | Serve documentation        |
-
-## Repository Structure
-
-```text
-.
-├── argocd/               # Argo CD Application manifests
-│   └── apps/            # Application definitions
-├── docs/                 # Documentation
-├── k8s/                  # Helm charts and values
-│   ├── argocd/          # Argo CD values
-│   └── demo-api/        # Demo FastAPI application
-├── scripts/              # Automation scripts
-│   ├── minikube-start.sh
-│   ├── minikube-stop.sh
-│   ├── argocd-deploy.sh
-│   ├── deploy-app.sh
-│   └── setup-dependencies.sh
-└── Taskfile.yml          # Task definitions
-```
-
-## What Gets Deployed
-
-1. **Minikube** - Local Kubernetes cluster (v1.35.0)
-2. **Argo CD** - Installed via Helm with custom values
-3. **Port-forward** - Argo CD UI accessible at <http://localhost:8081>
-
-## Documentation
-
-Full documentation at [http://localhost:8000](http://localhost:8000) via `task docs:serve`
-
-- **[Setup](docs/setup.md)** - Installation and configuration
-- **[Private Repository Access](docs/private-repository.md)** - Configure GitHub PAT for private repos
-- **[Tasks](docs/tasks.md)** - Command reference
-- **[Troubleshooting](docs/troubleshooting.md)** - Common issues
-
-## Core Principles
-
-- **GitOps First** - All config in git, deployed via Argo CD
-- **Values Overrides** - Never fork charts
-- **Task-Based** - Use Taskfile for all operations
-- **Minimal** - Simple scripts, clear YAML
+Run `task docs:serve` → [http://localhost:8000](http://localhost:8000)
 
 ## Resources
 
-- [Argo CD Docs](https://argo-cd.readthedocs.io/)
-- [Minikube Docs](https://minikube.sigs.k8s.io/)
-- [Taskfile Docs](https://taskfile.dev/)
+- [Argo CD](https://argo-cd.readthedocs.io/) · [Minikube](https://minikube.sigs.k8s.io/) · [Taskfile](https://taskfile.dev/)
