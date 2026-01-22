@@ -2,7 +2,13 @@
 
 Run `task --list` to see all available tasks.
 
-## 🧪 Lab
+## 🌱 Top-level
+
+| Task          | Description                |
+|---------------|----------------------------|
+| `task init`   | Create .env from template  |
+
+## 🔬 Lab
 
 | Task              | Description                      |
 |-------------------|----------------------------------|
@@ -30,21 +36,21 @@ Run `task --list` to see all available tasks.
 
 ## 📚 Docs
 
-| Task               | Description              |
-|--------------------|--------------------------|
-| `task docs:serve`  | Serve docs (live reload) |
-| `task docs:build`  | Build static site        |
-| `task docs:deploy` | Deploy to GitHub Pages   |
+| Task              | Description                   |
+|-------------------|-------------------------------|
+| `task docs:serve` | Serve docs (live reload)      |
+| `task docs:build` | Build static site             |
+| `task docs:clean` | Clean documentation artifacts |
 
 ## ✅ Quality
 
-| Task                          | Description            |
-|-------------------------------|------------------------|
-| `task quality:validate`       | Run all checks         |
-| `task quality:fix`            | Auto-fix lint errors   |
-| `task quality:pre-commit:run` | Run pre-commit hooks   |
+| Task                          | Descr«iption         |
+|-------------------------------|----------------------|
+| `task quality:validate`       | Run all checks       |
+| `task quality:fix`            | Auto-fix lint errors |
+| `task quality:pre-commit:run` | Run pre-commit hooks |
 
-## 🔧 Utils
+## ⚙️ Utils
 
 | Task                 | Description           |
 |----------------------|-----------------------|
