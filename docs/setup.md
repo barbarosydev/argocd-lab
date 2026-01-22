@@ -67,19 +67,30 @@ task argocd:password
 
 ## Environment Configuration
 
-You can customize the lab environment by editing the `vars` section in `Taskfile.yml`.
+Use a single `.env` file to configure all lab settings. Environment variables set in your shell take priority over
+`.env`. Copy the template and adjust values as needed:
 
-```yaml
-vars:
-  PROFILE: argocd-lab
-  K8S_VERSION: "v1.35.0"
-  ARGOCD_NAMESPACE: argocd
-  ARGOCD_PORT: 8081
+```bash
+cp env.example .env
 ```
 
-Key variables include:
+Key variables (defaults shown):
 
-- `PROFILE`: The Minikube profile name.
-- `K8S_VERSION`: The Kubernetes version to use.
-- `ARGOCD_NAMESPACE`: The namespace for Argo CD.
-- `ARGOCD_PORT`: The port for the Argo CD UI.
+- `LAB_MINIKUBE_PROFILE=argocd-lab`
+- `LAB_K8S_VERSION=v1.35.0`
+- `LAB_ARGOCD_NAMESPACE=argocd`
+- `LAB_ARGOCD_PORT=8081`
+- `LAB_ARGO_VALUES=k8s/argocd/values.yaml`
+- `LAB_ARGOCD_HELM_VERSION=9.3.4` (chart version used by default)
+- `LAB_APP_NAMESPACE=default` (namespace used for direct Helm deploys)
+- `LAB_DEPLOY_METHOD=gitops` (default deploy method for apps)
+- `LAB_FULL_CLEAN=0` (default for `utils:clean`; stops the lab if set to 1)
+- `LAB_DOCKER_CLEAN=0` (default for `utils:clean`; removes `demo-api:*` images if set to 1)
+- `GITHUB_PAT=` (optional; needed for private repos)
+
+Tasks automatically load `.env` (via `dotenv` in `Taskfile.yml`), and scripts source it without overriding variables you
+already exported. You can override any value per-invocation with standard environment overrides, for example:
+
+```bash
+LAB_ARGOCD_PORT=9090 task argocd:ui
+```

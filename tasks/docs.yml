@@ -5,28 +5,32 @@ tasks:
     desc: Serve documentation with live reload
     silent: true
     cmds:
-      - echo "Starting documentation server at http://localhost:8000"
-      - uv run --project docs mkdocs serve --livereload --watch docs
+      - |
+          echo "[docs] Serving at http://localhost:8000"
+          uv run --project docs mkdocs serve --livereload --watch docs
 
   build:
     desc: Build static documentation
     silent: true
     cmds:
-      - echo "Building documentation..."
-      - uv run --project docs mkdocs build
-      - echo "Documentation built in site/ directory"
+      - |
+          echo "[docs] Building site"
+          uv run --project docs mkdocs build
+          echo "[docs] Output: site/"
 
   clean:
     desc: Clean documentation artifacts
     silent: true
     cmds:
-      - rm -rf site docs/site .venv docs/.venv
-      - find docs -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
-      - echo "Documentation artifacts cleaned"
+      - |
+          rm -rf site docs/site .venv docs/.venv
+          find docs -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
+          echo "[docs] Cleaned"
 
   deploy:
     desc: Deploy documentation to GitHub Pages
     silent: true
     cmds:
-      - echo "Deploying documentation to GitHub Pages..."
-      - uv run --project docs mkdocs gh-deploy --clean --message "docs update documentation [skip ci]"
+      - |
+          echo "[docs] Deploying to GitHub Pages"
+          uv run --project docs mkdocs gh-deploy --clean --message "docs update documentation [skip ci]"

@@ -39,3 +39,6 @@ docs/.venv/
 
 # Logs
 *.log
+
+# Local environment overrides
+.env

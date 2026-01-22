@@ -14,7 +14,7 @@ If Docker isn't running, start Docker Desktop.
 
 ```bash
 task lab:stop
-task env:start
+task lab:start
 ```
 
 ## Argo CD Not Deploying

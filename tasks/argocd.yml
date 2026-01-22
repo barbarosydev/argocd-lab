@@ -15,8 +15,7 @@ tasks:
     deps:
       - task: :_check-cluster
     cmds:
-      - echo "ArgoCD Admin Password:"
-      - kubectl -n {{.ARGOCD_NAMESPACE}} get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 --decode && echo
+      - kubectl -n {{.ARGOCD_NAMESPACE}} get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d && echo
 
   ui:
     desc: Open Argo CD UI in browser
@@ -25,7 +24,6 @@ tasks:
       - task: :_check-cluster
     cmds:
       - open http://localhost:{{.ARGOCD_PORT}}
-      - echo "Opening ArgoCD UI at http://localhost:{{.ARGOCD_PORT}}"
 
   deploy-app:
     desc: Deploy application (default demo-api)
@@ -41,25 +39,4 @@ tasks:
     deps:
       - task: :_check-cluster
     cmds:
-      - ./scripts/undeploy-app.sh --app-name {{.APP_NAME | default "demo-api"}} --profile {{.PROFILE}} {{.CLI_ARGS}}
-
-  list-apps:
-    desc: List all ArgoCD applications
-    silent: true
-    deps:
-      - task: :_check-cluster
-    cmds:
-      - echo "ArgoCD Applications:"
-      - kubectl -n {{.ARGOCD_NAMESPACE}} get applications
-
-  sync-app:
-    desc: Sync an ArgoCD application
-    silent: true
-    deps:
-      - task: :_check-cluster
-    cmds:
-      - |
-        kubectl -n {{.ARGOCD_NAMESPACE}} patch application {{.APP_NAME | default "demo-api"}} \
-          --type merge \
-          -p '{"operation":{"initiatedBy":{"username":"task"},"sync":{"revision":"HEAD"}}}'
-      - echo "Application {{.APP_NAME | default "demo-api"}} sync triggered"
+      - ./scripts/undeploy-app.sh --app-name {{.APP_NAME | default "demo-api"}} {{.CLI_ARGS}}
