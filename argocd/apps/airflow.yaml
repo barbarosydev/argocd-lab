@@ -27,14 +27,19 @@ spec:
           defaultUser:
             enabled: true
             username: admin
-            # Password is provided via a Kubernetes Secret created at deploy time.
-            # See: scripts/airflow-secrets.sh
-            existingSecret: airflow-admin-secret
-            existingSecretKey: password
+            # For this chart version the admin password must be provided as plain text.
+            # We keep a placeholder here to satisfy the chart schema and override it at runtime via env.
+            password: placeholder
             role: Admin
             email: admin@example.com
             firstName: Admin
             lastName: User
+          extraEnv:
+            - name: _AIRFLOW_WWW_USER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: airflow-admin-secret
+                  key: password
           service:
             type: ClusterIP
 
