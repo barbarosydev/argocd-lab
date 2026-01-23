@@ -1,0 +1,111 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: airflow
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://airflow.apache.org
+    targetRevision: 1.18.0
+    chart: airflow
+    helm:
+      valuesObject:
+        # Airflow image
+        airflowVersion: "3.0.2"
+        defaultAirflowRepository: apache/airflow
+        defaultAirflowTag: "3.0.2"
+
+        # Simple executor for local lab
+        executor: LocalExecutor
+
+        # Webserver (called api-server in Airflow 3.0)
+        webserver:
+          replicas: 1
+          defaultUser:
+            enabled: true
+            username: admin
+            # Password is provided via a Kubernetes Secret created at deploy time.
+            # See: scripts/airflow-secrets.sh
+            existingSecret: airflow-admin-secret
+            existingSecretKey: password
+            role: Admin
+            email: admin@example.com
+            firstName: Admin
+            lastName: User
+          service:
+            type: ClusterIP
+
+        # Inject secrets from Kubernetes Secrets
+        # Database connection string secret is created once during deploy.
+        secret:
+          - envName: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+            secretName: airflow-postgresql-secret
+            secretKey: sql_alchemy_conn
+
+        # Scheduler
+        scheduler:
+          replicas: 1
+
+        # Disable optional components
+        triggerer:
+          enabled: false
+        dagProcessor:
+          enabled: false
+        redis:
+          enabled: false
+        flower:
+          enabled: false
+        statsd:
+          enabled: false
+        pgbouncer:
+          enabled: false
+
+        # Disable bundled PostgreSQL - we deploy it separately
+        postgresql:
+          enabled: false
+
+        # Ephemeral storage for local lab
+        logs:
+          persistence:
+            enabled: false
+        dags:
+          persistence:
+            enabled: false
+          gitSync:
+            enabled: false
+
+        # Config
+        env:
+          - name: AIRFLOW__CORE__LOAD_EXAMPLES
+            value: "True"
+          - name: AIRFLOW__WEBSERVER__EXPOSE_CONFIG
+            value: "True"
+
+        # Disable extras
+        networkPolicies:
+          enabled: false
+        ingress:
+          web:
+            enabled: false
+
+        # Jobs without Helm hooks (for ArgoCD)
+        createUserJob:
+          useHelmHooks: false
+        migrateDatabaseJob:
+          enabled: true
+          useHelmHooks: false
+        cleanup:
+          enabled: false
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: airflow
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

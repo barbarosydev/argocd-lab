@@ -1,0 +1,12 @@
+# PersistentVolumeClaim for Airflow PostgreSQL
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: airflow-postgresql-pvc
+  namespace: airflow
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

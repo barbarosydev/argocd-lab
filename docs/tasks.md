@@ -34,6 +34,18 @@ Run `task --list` to see all available tasks.
 | `task apps:sync` | Sync all ArgoCD apps       |
 | `task apps:list` | List deployed applications |
 
+## ✈️ Airflow
+
+| Task                    | Description                        |
+|-------------------------|------------------------------------|
+| `task airflow:deploy`   | Deploy Airflow via ArgoCD          |
+| `task airflow:undeploy` | Undeploy Airflow                   |
+| `task airflow:status`   | Check Airflow deployment status    |
+| `task airflow:ui`       | Port-forward and access Airflow UI |
+| `task airflow:logs`     | View scheduler logs                |
+| `task airflow:shell`    | Open shell in scheduler pod        |
+| `task airflow:sync`     | Force sync Airflow in ArgoCD       |
+
 ## 📚 Docs
 
 | Task              | Description                   |

@@ -1,0 +1,14 @@
+# Service for Airflow PostgreSQL
+apiVersion: v1
+kind: Service
+metadata:
+  name: airflow-postgresql
+  namespace: airflow
+  labels:
+    app: airflow-postgresql
+spec:
+  selector:
+    app: airflow-postgresql
+  ports:
+    - port: 5432
+      targetPort: 5432

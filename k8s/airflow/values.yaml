@@ -1,0 +1,104 @@
+# Minimal Apache Airflow Helm chart values for argocd-lab
+# Chart: https://airflow.apache.org (version defined in argocd/apps/airflow.yaml)
+# Note: These values are embedded in argocd/apps/airflow.yaml via valuesObject.
+#       This file is kept for reference and documentation.
+
+# Airflow image
+# Chart version and Airflow app version are separate.
+airflowVersion: "3.0.2"
+defaultAirflowRepository: apache/airflow
+defaultAirflowTag: "3.0.2"
+
+# Simple executor for local lab
+executor: LocalExecutor
+
+# Webserver (called api-server in Airflow 3.0)
+webserver:
+  replicas: 1
+  defaultUser:
+    enabled: true
+    username: admin
+    password: admin
+    role: Admin
+    email: admin@example.com
+    firstName: Admin
+    lastName: User
+  service:
+    type: ClusterIP
+
+# Scheduler
+scheduler:
+  replicas: 1
+
+# Disable optional components
+triggerer:
+  enabled: false
+
+dagProcessor:
+  enabled: false
+
+# Disable bundled PostgreSQL - we deploy it separately using official image
+# See: k8s/airflow/postgresql.yaml (postgres:16.4)
+# Airflow 3.0.2 supports PostgreSQL 12-16
+postgresql:
+  enabled: false
+
+# External PostgreSQL connection
+data:
+  metadataConnection:
+    user: airflow
+    pass: airflow
+    protocol: postgresql
+    host: airflow-postgresql
+    port: 5432
+    db: airflow
+
+# Disable extras
+redis:
+  enabled: false
+
+flower:
+  enabled: false
+
+statsd:
+  enabled: false
+
+pgbouncer:
+  enabled: false
+
+# Ephemeral storage for local lab
+logs:
+  persistence:
+    enabled: false
+
+dags:
+  persistence:
+    enabled: false
+  gitSync:
+    enabled: false
+
+# Airflow config
+env:
+  - name: AIRFLOW__CORE__LOAD_EXAMPLES
+    value: "True"
+  - name: AIRFLOW__WEBSERVER__EXPOSE_CONFIG
+    value: "True"
+
+# Disable network policies and ingress - use port-forward
+networkPolicies:
+  enabled: false
+
+ingress:
+  web:
+    enabled: false
+
+# Jobs without Helm hooks (for ArgoCD compatibility)
+createUserJob:
+  useHelmHooks: false
+
+migrateDatabaseJob:
+  enabled: true
+  useHelmHooks: false
+
+cleanup:
+  enabled: false

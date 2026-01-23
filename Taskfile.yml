@@ -5,17 +5,18 @@ dotenv:
 
 # Global configuration
 vars:
-  PROFILE: '{{.LAB_MINIKUBE_PROFILE | default "argocd-lab"}}'
-  K8S_VERSION: '{{.LAB_K8S_VERSION | default "v1.35.0"}}'
-  MINIKUBE_DRIVER: '{{.LAB_MINIKUBE_DRIVER | default "docker"}}'
-  ARGOCD_NAMESPACE: '{{.LAB_ARGOCD_NAMESPACE | default "argocd"}}'
-  ARGOCD_PORT: '{{.LAB_ARGOCD_PORT | default 8081}}'
-  ARGO_VALUES: '{{.LAB_ARGO_VALUES | default "k8s/argocd/values.yaml"}}'
+  PROFILE: '{{.LAB_MINIKUBE_PROFILE}}'
+  K8S_VERSION: '{{.LAB_K8S_VERSION}}'
+  MINIKUBE_DRIVER: '{{.LAB_MINIKUBE_DRIVER}}'
+  ARGOCD_NAMESPACE: '{{.LAB_ARGOCD_NAMESPACE}}'
+  ARGOCD_PORT: '{{.LAB_ARGOCD_PORT}}'
+  ARGO_VALUES: '{{.LAB_ARGO_VALUES}}'
 
 # Include task modules
 includes:
   lab: ./tasks/lab.yml
   argocd: ./tasks/argocd.yml
+  airflow: ./tasks/airflow.yml
   apps: ./tasks/apps.yml
   docs: ./tasks/docs.yml
   quality: ./tasks/quality.yml

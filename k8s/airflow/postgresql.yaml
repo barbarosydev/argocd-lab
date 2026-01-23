@@ -1,0 +1,54 @@
+# PostgreSQL Deployment for Airflow using official Docker image
+# Airflow 3.0.2 supports PostgreSQL 12-16
+# See: https://airflow.apache.org/docs/apache-airflow/stable/installation/prerequisites.html
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: airflow-postgresql
+  namespace: airflow
+  labels:
+    app: airflow-postgresql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: airflow-postgresql
+  template:
+    metadata:
+      labels:
+        app: airflow-postgresql
+    spec:
+      containers:
+        - name: postgresql
+          image: postgres:16.4
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              value: airflow
+            # Use a Kubernetes Secret for the DB password instead of embedding it in the manifest.
+            # Create the secret in the 'airflow' namespace before applying this manifest, e.g.:
+            # kubectl create secret generic airflow-postgresql-secret --from-literal=password='REPLACE_WITH_SECURE_PASSWORD' -n airflow
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: airflow-postgresql-secret
+                  key: password
+            - name: POSTGRES_DB
+              value: airflow
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+      volumes:
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: airflow-postgresql-pvc

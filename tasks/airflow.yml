@@ -1,0 +1,84 @@
+version: '3'
+
+tasks:
+  preflight:
+    desc: "✈️  Check prerequisites for Airflow deployment"
+    silent: true
+    cmds:
+      - ./scripts/airflow.sh preflight
+
+  deploy:
+    desc: "✈️  Deploy Airflow via ArgoCD"
+    silent: true
+    deps:
+      - task: :_check-cluster
+    cmds:
+      - ./scripts/airflow.sh deploy
+
+  undeploy:
+    desc: "✈️  Undeploy Airflow"
+    silent: true
+    deps:
+      - task: :_check-cluster
+    cmds:
+      - ./scripts/airflow.sh undeploy
+
+  status:
+    desc: "✈️  Check Airflow deployment status"
+    silent: true
+    deps:
+      - task: :_check-cluster
+    cmds:
+      - ./scripts/airflow.sh status
+
+  ui:
+    desc: "✈️  Port-forward Airflow webserver and open UI"
+    silent: true
+    deps:
+      - task: :_check-cluster
+    cmds:
+      - ./scripts/airflow.sh ui
+
+  logs:
+    desc: "✈️  View Airflow scheduler logs"
+    silent: true
+    deps:
+      - task: :_check-cluster
+    cmds:
+      - ./scripts/airflow.sh logs
+
+  shell:
+    desc: "✈️  Open shell in Airflow scheduler pod"
+    silent: true
+    deps:
+      - task: :_check-cluster
+    cmds:
+      - ./scripts/airflow.sh shell
+
+  sync:
+    desc: "✈️  Force sync Airflow application in ArgoCD"
+    silent: true
+    deps:
+      - task: :_check-cluster
+    cmds:
+      - ./scripts/airflow.sh sync
+
+  db-password:
+    desc: "✈️  Show Airflow DB connection string"
+    silent: true
+    deps:
+      - task: :_check-cluster
+    cmds:
+      - |
+          echo "[airflow] Reading DB connection string from secret..."
+          ./scripts/airflow-secrets.sh db
+
+  password:
+    desc: "✈️  Show Airflow admin password"
+    silent: true
+    deps:
+      - task: :_check-cluster
+    cmds:
+      - |
+          echo "[airflow] Reading admin password from secret..."
+          ./scripts/airflow-secrets.sh admin
