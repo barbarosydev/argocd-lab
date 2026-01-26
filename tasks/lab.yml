@@ -8,7 +8,7 @@ tasks:
       - task: :_check-deps
     cmds:
       - ./scripts/minikube.sh start --profile {{.PROFILE}} --k8s-version {{.K8S_VERSION}} --driver {{.MINIKUBE_DRIVER}}
-      - ./scripts/argocd-deploy.sh --argocd-namespace {{.ARGOCD_NAMESPACE}} --argo-values {{.ARGO_VALUES}} --port {{.ARGOCD_PORT}}
+      - ./scripts/argocd.sh bootstrap --namespace {{.ARGOCD_NAMESPACE}} --values {{.ARGO_VALUES}} --port {{.ARGOCD_PORT}}
 
   down:
     desc: "🔬 Stop minikube (preserves data)"
@@ -26,4 +26,4 @@ tasks:
     desc: "🔬 Check lab status"
     silent: true
     cmds:
-      - ./scripts/check-lab-status.sh
+      - ./scripts/lab.sh

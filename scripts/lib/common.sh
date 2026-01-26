@@ -5,8 +5,6 @@
 
 set -euo pipefail
 
-LOG_PREFIX="${LOG_PREFIX:-$(basename "$0")}"
-
 # Colors (can be disabled with LAB_NO_COLOR=1)
 if [[ "${LAB_NO_COLOR:-0}" -eq 1 ]]; then
   COLOR_INFO=""
@@ -49,20 +47,20 @@ load_env() {
 }
 
 log_info() {
-  echo -e "${COLOR_INFO}[INFO][${LOG_PREFIX}]${COLOR_RESET} $*"
+  echo -e "${COLOR_INFO}[INFO]${COLOR_RESET} $*"
 }
 
 log_warn() {
-  echo -e "${COLOR_WARN}[WARN][${LOG_PREFIX}]${COLOR_RESET} $*"
+  echo -e "${COLOR_WARN}[WARN]${COLOR_RESET} $*"
 }
 
 log_error() {
-  echo -e "${COLOR_ERROR}[ERROR][${LOG_PREFIX}]${COLOR_RESET} $*" >&2
+  echo -e "${COLOR_ERROR}[ERROR]${COLOR_RESET} $*" >&2
 }
 
 log_debug() {
   if [[ "${LAB_VERBOSE:-0}" -eq 1 ]]; then
-    echo -e "${COLOR_DEBUG}[DEBUG][${LOG_PREFIX}]${COLOR_RESET} $*"
+    echo -e "${COLOR_DEBUG}[DEBUG]${COLOR_RESET} $*"
   fi
 }
 

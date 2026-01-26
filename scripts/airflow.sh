@@ -5,10 +5,9 @@ set -euo pipefail
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib/common.sh"
 
 load_env
-export LOG_PREFIX="airflow"
 
 COMMAND=""
-PORT="${LAB_AIRFLOW_PORT:-8080}"
+AIRFLOW_PORT="${LAB_AIRFLOW_PORT:-8080}"
 KEEP_SECRETS=0
 
 show_help() {
@@ -137,7 +136,7 @@ undeploy_airflow() {
 ui_airflow() {
   require_cmd kubectl
 
-  log_info "Starting Airflow UI port-forward on port ${PORT}"
+  log_info "Starting Airflow UI port-forward on port ${AIRFLOW_PORT}"
 
   # Check if Airflow webserver is running
   if ! kubectl get pod -l component=webserver &>/dev/null; then
@@ -145,13 +144,13 @@ ui_airflow() {
     exit 1
   fi
 
-  log_info "Airflow UI will be available at http://localhost:${PORT}"
+  log_info "Airflow UI will be available at http://localhost:${AIRFLOW_PORT}"
   log_info "Username: admin"
   log_info "Password: admin (default - run 'task airflow:passwords' for all credentials)"
   log_info "Press Ctrl+C to stop port forwarding"
   echo ""
 
-  kubectl port-forward svc/airflow-webserver "${PORT}:8080"
+  kubectl port-forward svc/airflow-webserver "${AIRFLOW_PORT}:8080"
 }
 
 passwords_airflow() {
@@ -165,7 +164,7 @@ passwords_airflow() {
 
   # Airflow Web UI credentials
   echo "📊 Airflow Web UI:"
-  echo "   URL:      http://localhost:${PORT} (when port-forwarded)"
+  echo "   URL:      http://localhost:${AIRFLOW_PORT} (when port-forwarded)"
   echo "   Username: admin"
   echo "   Password: admin"
   echo ""
@@ -228,7 +227,7 @@ main() {
     case "$1" in
       -h|--help) show_help; exit 0 ;;
       --verbose) export LAB_VERBOSE=1; shift ;;
-      --port) PORT="${2:?--port requires a value}"; shift 2 ;;
+      --port) AIRFLOW_PORT="${2:?--port requires a value}"; shift 2 ;;
       --keep-secrets) KEEP_SECRETS=1; shift ;;
       *) log_error "Unknown option: $1"; show_help; exit 1 ;;
     esac

@@ -2,31 +2,41 @@ version: '3'
 
 tasks:
   deploy:
-    desc: Deploy Airflow with external PostgreSQL
+    desc: "✈️ Deploy Airflow with external PostgreSQL"
     silent: true
+    deps:
+      - task: :_check-cluster
     cmds:
       - ./scripts/airflow.sh deploy
 
   undeploy:
-    desc: Undeploy Airflow and PostgreSQL
+    desc: "✈️ Undeploy Airflow and PostgreSQL"
     silent: true
+    deps:
+      - task: :_check-cluster
     cmds:
       - ./scripts/airflow.sh undeploy
 
   ui:
-    desc: Open Airflow web UI (port-forward)
+    desc: "✈️ Open Airflow web UI (port-forward)"
     silent: true
+    deps:
+      - task: :_check-cluster
     cmds:
       - ./scripts/airflow.sh ui
 
   passwords:
-    desc: Show Airflow and PostgreSQL passwords
+    desc: "✈️ Show Airflow and PostgreSQL passwords"
     silent: true
+    deps:
+      - task: :_check-cluster
     cmds:
       - ./scripts/airflow.sh passwords
 
   status:
-    desc: Check Airflow deployment status
+    desc: "✈️ Check Airflow deployment status"
     silent: true
+    deps:
+      - task: :_check-cluster
     cmds:
       - ./scripts/airflow.sh status

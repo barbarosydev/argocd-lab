@@ -5,24 +5,16 @@ tasks:
     desc: "📚 Serve docs with live reload"
     silent: true
     cmds:
-      - |
-          echo "[docs] Serving at http://localhost:8000"
-          uv run --project docs mkdocs serve --livereload --watch docs
+      - ./scripts/docs.sh serve
 
   build:
     desc: "📚 Build static documentation"
     silent: true
     cmds:
-      - |
-          echo "[docs] Building site"
-          uv run --project docs mkdocs build
-          echo "[docs] Output: site/"
+      - ./scripts/docs.sh build
 
   clean:
     desc: "📚 Clean documentation artifacts"
     silent: true
     cmds:
-      - |
-          rm -rf site docs/site .venv docs/.venv
-          find docs -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
-          echo "[docs] Cleaned"
+      - ./scripts/docs.sh clean

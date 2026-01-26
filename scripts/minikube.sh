@@ -5,7 +5,6 @@ set -euo pipefail
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib/common.sh"
 
 load_env
-export LOG_PREFIX="minikube"
 
 COMMAND=""
 PROFILE="${LAB_MINIKUBE_PROFILE:-argocd-lab}"
@@ -29,6 +28,7 @@ Commands:
 
 Options:
   -h, --help              Show this help message
+  -v, --verbose           Enable verbose output
   --profile NAME          Minikube profile name (default: argocd-lab)
   --k8s-version VERSION   Kubernetes version (default: v1.35.0)
   --driver DRIVER         Minikube driver (default: docker)
@@ -119,6 +119,7 @@ main() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
       -h|--help) show_help; exit 0 ;;
+      -v|--verbose) export LAB_VERBOSE=1; shift ;;
       --profile) PROFILE="${2:?--profile requires a value}"; shift 2 ;;
       --k8s-version) K8S_VERSION="${2:?--k8s-version requires a value}"; shift 2 ;;
       --driver) DRIVER="${2:?--driver requires a value}"; shift 2 ;;

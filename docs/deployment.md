@@ -2,10 +2,10 @@
 
 ## Methods
 
-| Method               | Command                                   | Use Case                             |
-|----------------------|-------------------------------------------|--------------------------------------|
-| **GitOps** (default) | `task argocd:deploy-app`                  | Production-like, auto-syncs from Git |
-| **Helm**             | `task argocd:deploy-app -- --method helm` | Quick local testing                  |
+| Method               | Command                                | Use Case                             |
+|----------------------|----------------------------------------|--------------------------------------|
+| **GitOps** (default) | `task apps:deploy`                     | Production-like, auto-syncs from Git |
+| **Helm**             | `task apps:deploy -- --method helm`    | Quick local testing                  |
 
 ## Airflow with External PostgreSQL
 
@@ -69,7 +69,7 @@ This removes both Airflow and PostgreSQL applications and deletes secrets.
 To keep secrets for redeployment:
 
 ```bash
-./scripts/airflow-undeploy.sh --keep-secrets
+./scripts/airflow.sh undeploy --keep-secrets
 ```
 
 ## Demo App
@@ -77,15 +77,15 @@ To keep secrets for redeployment:
 ### Deploy Demo App
 
 ```bash
-task argocd:deploy-app                      # GitOps (default)
-task argocd:deploy-app -- --method helm     # Direct Helm
+task apps:deploy                      # GitOps (default)
+task apps:deploy -- --method helm     # Direct Helm
 ```
 
 ### Undeploy Demo App
 
 ```bash
-task argocd:undeploy-app                    # GitOps
-task argocd:undeploy-app -- --method helm   # Helm
+task apps:undeploy                    # GitOps
+task apps:undeploy -- --method helm   # Helm
 ```
 
 ### Test
