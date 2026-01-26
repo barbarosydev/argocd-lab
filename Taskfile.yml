@@ -16,8 +16,6 @@ vars:
 includes:
   lab: ./tasks/lab.yml
   argocd: ./tasks/argocd.yml
-  postgres: ./tasks/postgres.yml
-  airflow: ./tasks/airflow.yml
   apps: ./tasks/apps.yml
   docs: ./tasks/docs.yml
   quality: ./tasks/quality.yml

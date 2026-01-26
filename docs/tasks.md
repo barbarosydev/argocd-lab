@@ -34,26 +34,6 @@ Run `task --list` to see all available tasks.
 | `task apps:deploy`   | Deploy an application      |
 | `task apps:undeploy` | Undeploy an application    |
 
-## 🐘 PostgreSQL
-
-| Task                     | Description                   |
-|--------------------------|-------------------------------|
-| `task postgres:deploy`   | Deploy PostgreSQL database    |
-| `task postgres:undeploy` | Undeploy PostgreSQL database  |
-| `task postgres:status`   | Check PostgreSQL status       |
-| `task postgres:password` | Show PostgreSQL credentials   |
-| `task postgres:shell`    | Open psql shell to PostgreSQL |
-
-## ✈️ Airflow
-
-| Task                     | Description                           |
-|--------------------------|---------------------------------------|
-| `task airflow:deploy`    | Deploy Airflow with PostgreSQL        |
-| `task airflow:undeploy`  | Undeploy Airflow and PostgreSQL       |
-| `task airflow:ui`        | Open Airflow web UI (port-forward)    |
-| `task airflow:passwords` | Show Airflow and PostgreSQL passwords |
-| `task airflow:status`    | Check Airflow deployment status       |
-
 ## 📚 Docs
 
 | Task              | Description                   |
