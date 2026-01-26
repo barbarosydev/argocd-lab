@@ -8,7 +8,6 @@ load_env
 
 COMMAND=""
 AIRFLOW_PORT="${LAB_AIRFLOW_PORT:-8080}"
-KEEP_SECRETS=0
 
 show_help() {
   cat <<EOF
@@ -17,8 +16,8 @@ Manage Airflow deployment with external PostgreSQL.
 Usage: $(basename "$0") COMMAND [OPTIONS]
 
 Commands:
-  deploy      Deploy Airflow with PostgreSQL via ArgoCD
-  undeploy    Remove Airflow and PostgreSQL deployment
+  deploy      Deploy Airflow (requires PostgreSQL to be deployed first)
+  undeploy    Remove Airflow deployment (leaves PostgreSQL intact)
   ui          Open Airflow web UI via port-forward
   passwords   Display Airflow and PostgreSQL credentials
   status      Check Airflow deployment status
@@ -27,12 +26,14 @@ Options:
   -h, --help       Show this help message
   --verbose        Enable verbose output
   --port PORT      Port for UI port-forward (default: 8080)
-  --keep-secrets   Keep secrets when undeploying (undeploy only)
+
+Prerequisites:
+  PostgreSQL must be deployed first: task postgres:deploy
 
 Examples:
   $(basename "$0") deploy
   $(basename "$0") ui --port 8081
-  $(basename "$0") undeploy --keep-secrets
+  $(basename "$0") undeploy
   $(basename "$0") passwords
 
 EOF
@@ -41,24 +42,24 @@ EOF
 deploy_airflow() {
   require_cmd kubectl openssl
 
-  log_info "Deploying Airflow with external PostgreSQL"
+  log_info "Deploying Airflow"
 
-  # Generate PostgreSQL secrets if they don't exist
+  # Check if PostgreSQL is running
+  if ! kubectl get pod -l app.kubernetes.io/name=postgresql &>/dev/null; then
+    log_error "PostgreSQL is not deployed. Deploy it first with 'task postgres:deploy'"
+    exit 1
+  fi
+
+  # Check if PostgreSQL is ready
+  if ! kubectl get pod -l app.kubernetes.io/name=postgresql -o jsonpath='{.items[0].status.phase}' 2>/dev/null | grep -q "Running"; then
+    log_error "PostgreSQL is not ready. Wait for it to be running or check 'task postgres:status'"
+    exit 1
+  fi
+
+  # Check if postgres-secret exists (required for connection string)
   if ! kubectl get secret postgres-secret &>/dev/null; then
-    log_info "Generating PostgreSQL secrets"
-
-    POSTGRES_PASSWORD=$(openssl rand -base64 32 | tr -d '/+=' | head -c 32)
-    AIRFLOW_DB_PASSWORD=$(openssl rand -base64 32 | tr -d '/+=' | head -c 32)
-    CONNECTION_STRING="postgresql+psycopg2://airflow:${AIRFLOW_DB_PASSWORD}@postgres-postgresql.default.svc.cluster.local:5432/airflow"
-
-    kubectl create secret generic postgres-secret \
-      --from-literal=postgres-password="${POSTGRES_PASSWORD}" \
-      --from-literal=airflow-password="${AIRFLOW_DB_PASSWORD}" \
-      --from-literal=connection-string="${CONNECTION_STRING}"
-
-    log_info "PostgreSQL secrets created"
-  else
-    log_info "PostgreSQL secrets already exist"
+    log_error "PostgreSQL secrets not found. Redeploy PostgreSQL with 'task postgres:deploy'"
+    exit 1
   fi
 
   # Generate Airflow webserver secret if it doesn't exist
@@ -76,19 +77,6 @@ deploy_airflow() {
     log_info "Airflow webserver secret already exists"
   fi
 
-  # Deploy PostgreSQL
-  log_info "Deploying PostgreSQL via ArgoCD"
-  kubectl apply -f "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../argocd/apps/postgres.yaml"
-
-  # Wait for PostgreSQL to be ready
-  log_info "Waiting for PostgreSQL to be ready (this may take a few minutes)"
-  sleep 5
-
-  if ! kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=postgresql --timeout=300s 2>/dev/null; then
-    log_warn "PostgreSQL pod not ready yet, continuing anyway"
-  else
-    log_info "PostgreSQL is ready"
-  fi
 
   # Deploy Airflow
   log_info "Deploying Airflow via ArgoCD"
@@ -113,43 +101,31 @@ deploy_airflow() {
 undeploy_airflow() {
   require_cmd kubectl
 
-  log_info "Undeploying Airflow and PostgreSQL"
+  log_info "Undeploying Airflow"
 
-  # Undeploy Airflow
+  # Undeploy Airflow via ArgoCD (with cascade delete)
   if kubectl get application airflow -n argocd &>/dev/null; then
-    log_info "Removing Airflow application"
-    kubectl delete -f "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../argocd/apps/airflow.yaml"
+    log_info "Removing Airflow application (cascade delete)"
+    kubectl delete application airflow -n argocd --cascade=foreground --wait=true
     log_info "Airflow application removed"
   else
-    log_info "Airflow application not found, skipping"
+    log_info "Airflow ArgoCD application not found"
   fi
 
-  # Undeploy PostgreSQL
-  if kubectl get application postgres -n argocd &>/dev/null; then
-    log_info "Removing PostgreSQL application"
-    kubectl delete -f "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../argocd/apps/postgres.yaml"
-    log_info "PostgreSQL application removed"
-  else
-    log_info "PostgreSQL application not found, skipping"
-  fi
+  # Clean up any orphaned Airflow resources (in case ArgoCD apps were deleted without cascade)
+  log_info "Cleaning up orphaned Airflow resources"
+  kubectl delete statefulset,deployment,service,configmap,serviceaccount,secret,job,pvc -l release=airflow --ignore-not-found 2>/dev/null || true
+  kubectl delete statefulset,deployment,service,configmap,serviceaccount,secret,job,pvc -l app.kubernetes.io/instance=airflow --ignore-not-found 2>/dev/null || true
 
-  # Delete secrets unless --keep-secrets is specified
-  if [[ ${KEEP_SECRETS} -eq 0 ]]; then
-    if kubectl get secret postgres-secret &>/dev/null; then
-      log_info "Deleting PostgreSQL secrets"
-      kubectl delete secret postgres-secret
-    fi
-    if kubectl get secret airflow-webserver-secret &>/dev/null; then
-      log_info "Deleting Airflow webserver secret"
-      kubectl delete secret airflow-webserver-secret
-    fi
-    log_info "Secrets deleted"
-  else
-    log_info "Keeping secrets as requested"
+  # Delete Airflow secrets
+  if kubectl get secret airflow-webserver-secret &>/dev/null; then
+    log_info "Deleting Airflow webserver secret"
+    kubectl delete secret airflow-webserver-secret
   fi
 
   echo ""
   log_info "✅ Airflow undeploy complete!"
+  log_info "PostgreSQL was NOT removed. To remove it, run 'task postgres:undeploy'"
 }
 
 ui_airflow() {
@@ -265,7 +241,6 @@ main() {
       -h|--help) show_help; exit 0 ;;
       --verbose) export LAB_VERBOSE=1; shift ;;
       --port) AIRFLOW_PORT="${2:?--port requires a value}"; shift 2 ;;
-      --keep-secrets) KEEP_SECRETS=1; shift ;;
       *) log_error "Unknown option: $1"; show_help; exit 1 ;;
     esac
   done

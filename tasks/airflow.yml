@@ -2,7 +2,7 @@ version: '3'
 
 tasks:
   deploy:
-    desc: "✈️ Deploy Airflow with external PostgreSQL"
+    desc: "✈️ Deploy Airflow (requires postgres:deploy first)"
     silent: true
     deps:
       - task: :_check-cluster
@@ -10,7 +10,7 @@ tasks:
       - ./scripts/airflow.sh deploy
 
   undeploy:
-    desc: "✈️ Undeploy Airflow and PostgreSQL"
+    desc: "✈️ Undeploy Airflow (leaves PostgreSQL intact)"
     silent: true
     deps:
       - task: :_check-cluster
