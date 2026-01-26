@@ -1,4 +1,5 @@
-# Apache Airflow Configuration
+# Apache Airflow Configuration (for local helm testing)
+# NOTE: ArgoCD deployment uses inline values in argocd/apps/airflow.yaml
 # Official Chart: https://artifacthub.io/packages/helm/apache-airflow/airflow
 # Airflow version: 3.0.2, Helm chart: 1.18.0
 
