@@ -17,23 +17,21 @@ task argocd:ui         # Open UI (http://localhost:8081, user: admin)
 
 ## Commands
 
-| Command                  | Description                     |
-|--------------------------|---------------------------------|
-| `task lab:up`            | Start minikube + Argo CD        |
-| `task lab:down`          | Stop lab (preserves data)       |
-| `task lab:nuke`          | Delete lab completely           |
-| `task lab:status`        | Check lab status                |
-| `task argocd:password`   | Get admin password              |
-| `task airflow:deploy`    | Deploy Airflow with PostgreSQL  |
-| `task airflow:ui`        | Open Airflow UI                 |
-| `task airflow:passwords` | Show Airflow/Postgres passwords |
-| `task airflow:undeploy`  | Remove Airflow deployment       |
+| Command                | Description                 |
+|------------------------|-----------------------------|
+| `task lab:up`          | Start minikube + Argo CD    |
+| `task lab:down`        | Stop lab (preserves data)   |
+| `task lab:nuke`        | Delete lab completely       |
+| `task lab:status`      | Check lab status            |
+| `task argocd:password` | Get admin password          |
+| `task apps:deploy`     | Deploy demo app             |
+| `task apps:undeploy`   | Remove demo app             |
 
 ## Structure
 
 ```text
 argocd/apps/     # Argo CD Application manifests
-k8s/             # Helm charts (argocd, airflow, postgres, demo-api)
+k8s/             # Helm charts (argocd, demo-api)
 scripts/         # Automation scripts
 docs/            # Documentation
 ```

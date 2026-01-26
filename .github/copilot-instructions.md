@@ -22,15 +22,11 @@ argocd-lab/
 ├── docs/              # MkDocs documentation
 ├── k8s/               # Helm charts and values
 │   ├── argocd/
-│   ├── airflow/
-│   ├── postgres/
 │   └── demo-api/
 ├── scripts/           # Shell scripts (used by Taskfile)
 ├── tasks/             # Task module files
 │   ├── lab.yml
 │   ├── argocd.yml
-│   ├── postgres.yml
-│   ├── airflow.yml
 │   ├── apps.yml
 │   ├── docs.yml
 │   ├── quality.yml
@@ -60,18 +56,6 @@ task apps:list                  # List deployed apps
 task apps:deploy                # Deploy app (GitOps)
 task apps:undeploy              # Undeploy app
 
-# PostgreSQL
-task postgres:deploy            # Deploy PostgreSQL (Helm)
-task postgres:deploy-gitops     # Deploy PostgreSQL (GitOps)
-task postgres:status            # Check status
-task postgres:password          # Show credentials
-task postgres:undeploy          # Remove PostgreSQL
-
-# Airflow (requires PostgreSQL first)
-task airflow:deploy             # Deploy Airflow
-task airflow:ui                 # Open Airflow UI
-task airflow:passwords          # Show credentials
-task airflow:status             # Check status
 
 # Development
 task docs:serve                 # Serve documentation
