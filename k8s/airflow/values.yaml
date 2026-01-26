@@ -1,0 +1,82 @@
+# Apache Airflow Configuration
+# Official Chart: https://artifacthub.io/packages/helm/apache-airflow/airflow
+# Airflow version: 3.0.2, Helm chart: 1.18.0
+
+# Disable internal PostgreSQL
+postgresql:
+  enabled: false
+
+# External PostgreSQL configuration
+data:
+  metadataConnection:
+    user: airflow
+    pass: airflow-password
+    protocol: postgresql
+    host: postgres-postgresql.default.svc.cluster.local
+    port: 5432
+    db: airflow
+    sslmode: disable
+
+# Configure executor
+executor: CeleryExecutor
+
+# Webserver configuration
+webserver:
+  defaultUser:
+    enabled: true
+    username: admin
+    email: admin@example.com
+    firstName: Admin
+    lastName: User
+    role: Admin
+    password: admin
+
+  service:
+    type: ClusterIP
+    port: 8080
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+
+# Scheduler configuration
+scheduler:
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+
+# Redis for CeleryExecutor
+redis:
+  enabled: true
+  resources:
+    limits:
+      cpu: 200m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+
+# Worker configuration
+workers:
+  replicas: 1
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+
+# Secret configuration - use existing secret for DB password
+secret:
+  - envName: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+    secretName: postgres-secret
+    secretKey: connection-string

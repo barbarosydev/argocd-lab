@@ -1,0 +1,32 @@
+version: '3'
+
+tasks:
+  deploy:
+    desc: Deploy Airflow with external PostgreSQL
+    silent: true
+    cmds:
+      - ./scripts/airflow.sh deploy
+
+  undeploy:
+    desc: Undeploy Airflow and PostgreSQL
+    silent: true
+    cmds:
+      - ./scripts/airflow.sh undeploy
+
+  ui:
+    desc: Open Airflow web UI (port-forward)
+    silent: true
+    cmds:
+      - ./scripts/airflow.sh ui
+
+  passwords:
+    desc: Show Airflow and PostgreSQL passwords
+    silent: true
+    cmds:
+      - ./scripts/airflow.sh passwords
+
+  status:
+    desc: Check Airflow deployment status
+    silent: true
+    cmds:
+      - ./scripts/airflow.sh status

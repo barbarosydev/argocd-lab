@@ -5,7 +5,7 @@ set -euo pipefail
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib/common.sh"
 
 load_env
-LOG_PREFIX="argocd-deploy"
+export LOG_PREFIX="argocd-deploy"
 
 ARGOCD_NAMESPACE="${LAB_ARGOCD_NAMESPACE:-argocd}"
 ARGO_VALUES="${LAB_ARGO_VALUES:-k8s/argocd/values.yaml}"

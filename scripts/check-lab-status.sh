@@ -8,7 +8,7 @@ set -euo pipefail
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib/common.sh"
 
 load_env
-LOG_PREFIX="lab-status"
+export LOG_PREFIX="lab-status"
 
 PROFILE="${LAB_MINIKUBE_PROFILE:-argocd-lab}"
 NS="${LAB_ARGOCD_NAMESPACE:-argocd}"

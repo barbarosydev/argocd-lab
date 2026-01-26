@@ -1,0 +1,30 @@
+# PostgreSQL Configuration
+# Official Chart: https://artifacthub.io/packages/helm/bitnami/postgresql
+# Using Bitnami PostgreSQL chart v16.5.0 (PostgreSQL 16.x)
+
+global:
+  postgresql:
+    auth:
+      existingSecret: postgres-secret
+      secretKeys:
+        adminPasswordKey: postgres-password
+
+primary:
+  persistence:
+    enabled: true
+    size: 10Gi
+  resources:
+    limits:
+      memory: 1Gi
+      cpu: 500m
+    requests:
+      memory: 512Mi
+      cpu: 250m
+
+# Airflow database configuration
+auth:
+  database: airflow
+  username: airflow
+  existingSecret: postgres-secret
+  secretKeys:
+    userPasswordKey: airflow-password

@@ -5,7 +5,7 @@ set -euo pipefail
 # shellcheck source=scripts/lib/common.sh
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib/common.sh"
 
-LOG_PREFIX="setup"
+export LOG_PREFIX="setup"
 
 # Ensure Homebrew is available
 if ! command -v brew >/dev/null 2>&1; then

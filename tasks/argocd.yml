@@ -31,7 +31,7 @@ tasks:
     deps:
       - task: :_check-cluster
     cmds:
-      - ./scripts/deploy-app.sh --app-name {{.APP_NAME | default "demo-api"}} --profile {{.PROFILE}} {{.CLI_ARGS}}
+      - ./scripts/demo-app.sh deploy --app-name {{.APP_NAME | default "demo-api"}} --profile {{.PROFILE}} {{.CLI_ARGS}}
 
   undeploy-app:
     desc: "🔄 Undeploy application"
@@ -39,4 +39,4 @@ tasks:
     deps:
       - task: :_check-cluster
     cmds:
-      - ./scripts/undeploy-app.sh --app-name {{.APP_NAME | default "demo-api"}} {{.CLI_ARGS}}
+      - ./scripts/demo-app.sh undeploy --app-name {{.APP_NAME | default "demo-api"}} {{.CLI_ARGS}}
