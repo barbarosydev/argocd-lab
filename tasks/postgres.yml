@@ -9,14 +9,6 @@ tasks:
     cmds:
       - ./scripts/postgres.sh deploy
 
-  deploy-gitops:
-    desc: "🐘 Deploy PostgreSQL via ArgoCD (GitOps)"
-    silent: true
-    deps:
-      - task: :_check-cluster
-    cmds:
-      - ./scripts/postgres.sh deploy --method gitops
-
   undeploy:
     desc: "🐘 Undeploy PostgreSQL database"
     silent: true

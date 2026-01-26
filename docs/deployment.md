@@ -2,16 +2,20 @@
 
 ## Methods
 
-| Method               | Command                             | Use Case                             |
-|----------------------|-------------------------------------|--------------------------------------|
-| **GitOps** (default) | `task apps:deploy`                  | Production-like, auto-syncs from Git |
-| **Helm**             | `task apps:deploy -- --method helm` | Quick local testing                  |
+The deployment method is controlled by `LAB_DEPLOY_METHOD` in `.env`:
+
+| Method               | Setting                    | Use Case                             |
+|----------------------|----------------------------|--------------------------------------|
+| **GitOps** (default) | `LAB_DEPLOY_METHOD=gitops` | Production-like, auto-syncs from Git |
+| **Helm**             | `LAB_DEPLOY_METHOD=helm`   | Quick local testing                  |
+
+All `deploy` tasks respect this setting automatically.
 
 ## PostgreSQL
 
 Deploy PostgreSQL database independently.
 
-### Deploy via Helm (Recommended)
+### Deploy PostgreSQL
 
 ```bash
 task postgres:deploy
@@ -19,19 +23,9 @@ task postgres:deploy
 
 This will:
 
-1. Add Bitnami Helm repository
-2. Update Helm dependencies
-3. Generate secrets with random passwords
-4. Deploy PostgreSQL via Helm
-5. Wait for PostgreSQL to be ready
-
-### Deploy via GitOps (ArgoCD)
-
-```bash
-task postgres:deploy-gitops
-```
-
-Note: GitOps deployment requires the repository to be accessible by ArgoCD.
+1. Generate secrets with random passwords
+2. Deploy PostgreSQL (via ArgoCD if gitops, or Helm if helm)
+3. Wait for PostgreSQL to be ready
 
 ### View Credentials
 
@@ -72,11 +66,11 @@ Versions are configured in `.env` file:
 ```bash
 LAB_AIRFLOW_HELM_VERSION=1.18.0
 LAB_AIRFLOW_VERSION=3.0.2
-LAB_POSTGRES_HELM_VERSION=17.4.3
-LAB_POSTGRES_VERSION=17
+LAB_POSTGRES_HELM_VERSION=16.7.15
+LAB_POSTGRES_VERSION=17.5.0
 ```
 
-### Deploy
+### Deploy Airflow
 
 First deploy PostgreSQL, then Airflow:
 

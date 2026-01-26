@@ -7,7 +7,7 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib/common.sh"
 load_env
 
 COMMAND=""
-DEPLOY_METHOD="${LAB_DEPLOY_METHOD:-helm}"
+DEPLOY_METHOD="${LAB_DEPLOY_METHOD:-gitops}"
 NAMESPACE="${LAB_POSTGRES_NAMESPACE:-default}"
 
 show_help() {
@@ -65,15 +65,6 @@ deploy_postgres_helm() {
 
   log_info "Deploying PostgreSQL via Helm"
 
-  # Add Bitnami repo if not present
-  if ! helm repo list 2>/dev/null | grep -q bitnami; then
-    log_info "Adding Bitnami Helm repository"
-    helm repo add bitnami https://charts.bitnami.com/bitnami
-  fi
-
-  log_info "Updating Helm repositories"
-  helm repo update
-
   # Create secrets first
   create_secrets
 
@@ -81,7 +72,7 @@ deploy_postgres_helm() {
   local chart_dir
   chart_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../k8s/postgres"
 
-  # Update helm dependencies
+  # Update helm dependencies (uses OCI registry, no repo add needed)
   log_info "Updating Helm dependencies"
   helm dependency update "${chart_dir}"
 
@@ -107,30 +98,14 @@ deploy_postgres_helm() {
 }
 
 deploy_postgres_gitops() {
-  require_cmd kubectl helm
+  require_cmd kubectl
 
   log_info "Deploying PostgreSQL via ArgoCD (GitOps)"
-
-  # First, pre-pull the chart dependencies locally to avoid ArgoCD timeout
-  local chart_dir
-  chart_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../k8s/postgres"
-
-  # Add Bitnami repo if not present
-  if ! helm repo list 2>/dev/null | grep -q bitnami; then
-    log_info "Adding Bitnami Helm repository"
-    helm repo add bitnami https://charts.bitnami.com/bitnami
-  fi
-
-  log_info "Updating Helm repositories"
-  helm repo update
-
-  log_info "Pulling chart dependencies"
-  helm dependency update "${chart_dir}"
 
   # Create secrets first
   create_secrets
 
-  # Deploy via ArgoCD
+  # Deploy via ArgoCD (ArgoCD handles OCI registry dependencies natively)
   log_info "Creating ArgoCD Application"
   kubectl apply -f "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../argocd/apps/postgres.yaml"
 
