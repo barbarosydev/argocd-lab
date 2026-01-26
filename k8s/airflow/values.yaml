@@ -2,23 +2,15 @@
 # Official Chart: https://artifacthub.io/packages/helm/apache-airflow/airflow
 # Airflow version: 3.0.2, Helm chart: 1.18.0
 
-# Disable internal PostgreSQL
+# Disable internal PostgreSQL - we use external PostgreSQL
 postgresql:
   enabled: false
 
-# External PostgreSQL configuration
-data:
-  metadataConnection:
-    user: airflow
-    pass: airflow-password
-    protocol: postgresql
-    host: postgres-postgresql.default.svc.cluster.local
-    port: 5432
-    db: airflow
-    sslmode: disable
-
 # Configure executor
 executor: CeleryExecutor
+
+# Webserver secret key for Flask session management (required)
+webserverSecretKey: airflow-webserver-secret
 
 # Webserver configuration
 webserver:
@@ -29,7 +21,7 @@ webserver:
     firstName: Admin
     lastName: User
     role: Admin
-    password: admin
+    # Password is injected via secret below
 
   service:
     type: ClusterIP
@@ -75,8 +67,13 @@ workers:
       cpu: 250m
       memory: 512Mi
 
-# Secret configuration - use existing secret for DB password
+# Secret configuration - inject secrets as environment variables
 secret:
+  # Database connection string
   - envName: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
     secretName: postgres-secret
     secretKey: connection-string
+  # Webserver admin password (overrides defaultUser.password)
+  - envName: _AIRFLOW_WWW_USER_PASSWORD
+    secretName: airflow-webserver-secret
+    secretKey: webserver-password

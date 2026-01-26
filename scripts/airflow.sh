@@ -43,22 +43,37 @@ deploy_airflow() {
 
   log_info "Deploying Airflow with external PostgreSQL"
 
-  # Generate secrets if they don't exist
+  # Generate PostgreSQL secrets if they don't exist
   if ! kubectl get secret postgres-secret &>/dev/null; then
     log_info "Generating PostgreSQL secrets"
 
-    POSTGRES_PASSWORD=$(openssl rand -base64 32)
-    AIRFLOW_PASSWORD=$(openssl rand -base64 32)
-    CONNECTION_STRING="postgresql+psycopg2://airflow:${AIRFLOW_PASSWORD}@postgres-postgresql.default.svc.cluster.local:5432/airflow"
+    POSTGRES_PASSWORD=$(openssl rand -base64 32 | tr -d '/+=' | head -c 32)
+    AIRFLOW_DB_PASSWORD=$(openssl rand -base64 32 | tr -d '/+=' | head -c 32)
+    CONNECTION_STRING="postgresql+psycopg2://airflow:${AIRFLOW_DB_PASSWORD}@postgres-postgresql.default.svc.cluster.local:5432/airflow"
 
     kubectl create secret generic postgres-secret \
       --from-literal=postgres-password="${POSTGRES_PASSWORD}" \
-      --from-literal=airflow-password="${AIRFLOW_PASSWORD}" \
+      --from-literal=airflow-password="${AIRFLOW_DB_PASSWORD}" \
       --from-literal=connection-string="${CONNECTION_STRING}"
 
     log_info "PostgreSQL secrets created"
   else
     log_info "PostgreSQL secrets already exist"
+  fi
+
+  # Generate Airflow webserver secret if it doesn't exist
+  if ! kubectl get secret airflow-webserver-secret &>/dev/null; then
+    log_info "Generating Airflow webserver secret"
+
+    WEBSERVER_PASSWORD=$(openssl rand -base64 32 | tr -d '/+=' | head -c 16)
+
+    kubectl create secret generic airflow-webserver-secret \
+      --from-literal=webserver-secret-key="$(openssl rand -hex 32)" \
+      --from-literal=webserver-password="${WEBSERVER_PASSWORD}"
+
+    log_info "Airflow webserver secret created"
+  else
+    log_info "Airflow webserver secret already exists"
   fi
 
   # Deploy PostgreSQL
@@ -123,8 +138,12 @@ undeploy_airflow() {
     if kubectl get secret postgres-secret &>/dev/null; then
       log_info "Deleting PostgreSQL secrets"
       kubectl delete secret postgres-secret
-      log_info "Secrets deleted"
     fi
+    if kubectl get secret airflow-webserver-secret &>/dev/null; then
+      log_info "Deleting Airflow webserver secret"
+      kubectl delete secret airflow-webserver-secret
+    fi
+    log_info "Secrets deleted"
   else
     log_info "Keeping secrets as requested"
   fi
@@ -144,9 +163,15 @@ ui_airflow() {
     exit 1
   fi
 
+  # Get webserver password from secret
+  local webserver_pass="(run 'task airflow:passwords' to view)"
+  if kubectl get secret airflow-webserver-secret &>/dev/null; then
+    webserver_pass=$(kubectl get secret airflow-webserver-secret -o jsonpath='{.data.webserver-password}' 2>/dev/null | base64 -d)
+  fi
+
   log_info "Airflow UI will be available at http://localhost:${AIRFLOW_PORT}"
   log_info "Username: admin"
-  log_info "Password: admin (default - run 'task airflow:passwords' for all credentials)"
+  log_info "Password: ${webserver_pass}"
   log_info "Press Ctrl+C to stop port forwarding"
   echo ""
 
@@ -163,11 +188,18 @@ passwords_airflow() {
   echo ""
 
   # Airflow Web UI credentials
-  echo "📊 Airflow Web UI:"
-  echo "   URL:      http://localhost:${AIRFLOW_PORT} (when port-forwarded)"
-  echo "   Username: admin"
-  echo "   Password: admin"
-  echo ""
+  if kubectl get secret airflow-webserver-secret &>/dev/null; then
+    WEBSERVER_PASS=$(kubectl get secret airflow-webserver-secret -o jsonpath='{.data.webserver-password}' 2>/dev/null | base64 -d)
+
+    echo "📊 Airflow Web UI:"
+    echo "   URL:      http://localhost:${AIRFLOW_PORT} (when port-forwarded)"
+    echo "   Username: admin"
+    echo "   Password: ${WEBSERVER_PASS}"
+    echo ""
+  else
+    log_warn "Airflow webserver secret not found"
+    echo ""
+  fi
 
   # PostgreSQL credentials
   if kubectl get secret postgres-secret &>/dev/null; then
@@ -189,7 +221,12 @@ passwords_airflow() {
     echo "   Password: ${AIRFLOW_DB_PASS}"
     echo ""
   else
-    log_error "PostgreSQL secrets not found. Deploy Airflow first with 'task airflow:deploy'"
+    log_warn "PostgreSQL secrets not found"
+    echo ""
+  fi
+
+  if ! kubectl get secret airflow-webserver-secret &>/dev/null && ! kubectl get secret postgres-secret &>/dev/null; then
+    log_error "No secrets found. Deploy Airflow first with 'task airflow:deploy'"
     exit 1
   fi
 

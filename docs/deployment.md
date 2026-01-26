@@ -13,9 +13,18 @@ Deploy Apache Airflow with external PostgreSQL database via ArgoCD.
 
 ### Components
 
-- **PostgreSQL**: Bitnami chart 16.5.0 (PostgreSQL 16.x)
+- **PostgreSQL**: Bitnami chart (PostgreSQL 17.x)
 - **Airflow**: Official chart 1.18.0 (Airflow 3.0.2)
 - **Executor**: CeleryExecutor with Redis backend
+
+Versions are configured in `.env` file:
+
+```bash
+LAB_AIRFLOW_HELM_VERSION=1.18.0
+LAB_AIRFLOW_VERSION=3.0.2
+LAB_POSTGRES_HELM_VERSION=17.4.3
+LAB_POSTGRES_VERSION=17
+```
 
 ### Deploy
 
@@ -25,7 +34,7 @@ task airflow:deploy
 
 This will:
 
-1. Generate PostgreSQL secrets (random passwords)
+1. Generate secrets with random passwords (PostgreSQL admin, Airflow DB user, Airflow webserver admin)
 2. Deploy PostgreSQL via ArgoCD
 3. Wait for PostgreSQL to be ready
 4. Deploy Airflow via ArgoCD
@@ -39,10 +48,10 @@ task airflow:ui
 
 Opens port-forward to Airflow webserver at <http://localhost:8080>
 
-Default credentials:
+Credentials are displayed in the terminal output.
 
 - Username: `admin`
-- Password: `admin`
+- Password: (randomly generated - run `task airflow:passwords` to view)
 
 ### View Credentials
 

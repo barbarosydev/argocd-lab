@@ -21,7 +21,7 @@ configs:
     argocd-lab-repo:
       url: https://github.com/barbarosydev/argocd-lab.git
       type: git
-      name: argocd-lab
+      name: main
       # Username for GitHub (can be anything for PAT)
       username: git
       # Password is loaded from environment variable GITHUB_PAT

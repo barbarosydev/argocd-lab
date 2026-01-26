@@ -3,8 +3,9 @@ name: postgres
 description: PostgreSQL database for Airflow
 type: application
 version: 1.0.0
-appVersion: "16"
+# Versions configured via LAB_POSTGRES_VERSION and LAB_POSTGRES_HELM_VERSION in .env
+appVersion: "17"
 dependencies:
   - name: postgresql
-    version: 16.5.0
+    version: 17.4.3
     repository: https://charts.bitnami.com/bitnami
