@@ -1,5 +1,10 @@
 version: '3'
 
+vars:
+  MINIKUBE_CPUS: '{{.LAB_MINIKUBE_CPUS | default "8"}}'
+  MINIKUBE_MEMORY: '{{.LAB_MINIKUBE_MEMORY | default "16384"}}'
+  MINIKUBE_DISK_SIZE: '{{.LAB_MINIKUBE_DISK_SIZE | default "40g"}}'
+
 tasks:
   up:
     desc: "🔬 Start minikube and deploy ArgoCD"
@@ -7,23 +12,34 @@ tasks:
     deps:
       - task: :_check-deps
     cmds:
-      - ./scripts/minikube-start.sh --profile {{.PROFILE}} --k8s-version {{.K8S_VERSION}} --driver {{.MINIKUBE_DRIVER}}
-      - ./scripts/argocd-deploy.sh --argocd-namespace {{.ARGOCD_NAMESPACE}} --argo-values {{.ARGO_VALUES}} --port {{.ARGOCD_PORT}}
+      - |
+        ./scripts/minikube.sh start \
+          --profile {{.PROFILE}} \
+          --k8s-version {{.K8S_VERSION}} \
+          --driver {{.MINIKUBE_DRIVER}} \
+          --cpus {{.MINIKUBE_CPUS}} \
+          --memory {{.MINIKUBE_MEMORY}} \
+          --disk-size {{.MINIKUBE_DISK_SIZE}}
+      - |
+        ./scripts/argocd.sh bootstrap \
+          --namespace {{.ARGOCD_NAMESPACE}} \
+          --values {{.ARGO_VALUES}} \
+          --port {{.ARGOCD_PORT}}
 
   down:
     desc: "🔬 Stop minikube (preserves data)"
     silent: true
     cmds:
-      - ./scripts/minikube-stop.sh --profile {{.PROFILE}} --pause
+      - ./scripts/minikube.sh stop --profile {{.PROFILE}}
 
   nuke:
     desc: "🔬 Delete minikube and all data"
     silent: true
     cmds:
-      - ./scripts/minikube-stop.sh --profile {{.PROFILE}}
+      - ./scripts/minikube.sh delete --profile {{.PROFILE}}
 
   status:
     desc: "🔬 Check lab status"
     silent: true
     cmds:
-      - ./scripts/check-lab-status.sh
+      - ./scripts/lab.sh

@@ -22,11 +22,15 @@ argocd-lab/
 ├── docs/              # MkDocs documentation
 ├── k8s/               # Helm charts and values
 │   ├── argocd/
+│   ├── airflow/
+│   ├── postgres/
 │   └── demo-api/
 ├── scripts/           # Shell scripts (used by Taskfile)
 ├── tasks/             # Task module files
 │   ├── lab.yml
 │   ├── argocd.yml
+│   ├── airflow.yml
+│   ├── apps.yml
 │   ├── docs.yml
 │   ├── quality.yml
 │   └── utils.yml
@@ -38,7 +42,7 @@ argocd-lab/
 ```bash
 # Setup
 task utils:install              # Install tools (macOS)
-task quality:pre-commit:install # Install git hooks
+task quality:hooks              # Install git hooks
 
 # Lab lifecycle
 task lab:up                     # Start lab (minikube + ArgoCD)
@@ -49,8 +53,17 @@ task lab:status                 # Check status
 # ArgoCD
 task argocd:password            # Get admin password
 task argocd:ui                  # Open browser
-task argocd:deploy-app          # Deploy app (GitOps)
-task argocd:undeploy-app        # Undeploy app
+
+# Apps
+task apps:list                  # List deployed apps
+task apps:deploy                # Deploy app (GitOps)
+task apps:undeploy              # Undeploy app
+
+# Airflow
+task airflow:deploy             # Deploy Airflow with PostgreSQL
+task airflow:ui                 # Open Airflow UI
+task airflow:passwords          # Show credentials
+task airflow:status             # Check status
 
 # Development
 task docs:serve                 # Serve documentation
@@ -122,7 +135,7 @@ Scripts auto-detect deployment method and suggest corrections.
 Run before committing:
 
 ```bash
-task quality:pre-commit:run
+task quality:run
 ```
 
 Checks: markdown, shell, YAML, Python, Dockerfile

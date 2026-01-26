@@ -24,15 +24,25 @@ Run `task --list` to see all available tasks.
 | `task argocd:bootstrap`    | Deploy/upgrade Argo CD |
 | `task argocd:password`     | Get admin password     |
 | `task argocd:ui`           | Open UI in browser     |
-| `task argocd:deploy-app`   | Deploy application     |
-| `task argocd:undeploy-app` | Undeploy application   |
 
 ## 📦 Apps
 
-| Task             | Description                |
-|------------------|----------------------------|
-| `task apps:sync` | Sync all ArgoCD apps       |
-| `task apps:list` | List deployed applications |
+| Task                 | Description                |
+|----------------------|----------------------------|
+| `task apps:list`     | List deployed applications |
+| `task apps:sync`     | Sync all ArgoCD apps       |
+| `task apps:deploy`   | Deploy an application      |
+| `task apps:undeploy` | Undeploy an application    |
+
+## ✈️ Airflow
+
+| Task                     | Description                           |
+|--------------------------|---------------------------------------|
+| `task airflow:deploy`    | Deploy Airflow with PostgreSQL        |
+| `task airflow:undeploy`  | Undeploy Airflow and PostgreSQL       |
+| `task airflow:ui`        | Open Airflow web UI (port-forward)    |
+| `task airflow:passwords` | Show Airflow and PostgreSQL passwords |
+| `task airflow:status`    | Check Airflow deployment status       |
 
 ## 📚 Docs
 
@@ -44,16 +54,17 @@ Run `task --list` to see all available tasks.
 
 ## ✅ Quality
 
-| Task                          | Descr«iption         |
-|-------------------------------|----------------------|
-| `task quality:validate`       | Run all checks       |
-| `task quality:fix`            | Auto-fix lint errors |
-| `task quality:pre-commit:run` | Run pre-commit hooks |
+| Task                    | Description               |
+|-------------------------|---------------------------|
+| `task quality:validate` | Run all validation checks |
+| `task quality:hooks`    | Install pre-commit hooks  |
+| `task quality:run`      | Run pre-commit hooks      |
 
 ## ⚙️ Utils
 
-| Task                 | Description           |
-|----------------------|-----------------------|
-| `task utils:install` | Install dependencies  |
-| `task utils:info`    | Show environment info |
-| `task utils:clean`   | Clean local artifacts |
+| Task                 | Description             |
+|----------------------|-------------------------|
+| `task utils:install` | Install dependencies    |
+| `task utils:update`  | Update dependencies     |
+| `task utils:info`    | Show environment info   |
+| `task utils:clean`   | Clean local artifacts   |

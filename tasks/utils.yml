@@ -1,39 +1,26 @@
 version: '3'
 
 tasks:
-  clean:
-    desc: "⚙️ Clean local artifacts"
-    silent: true
-    cmds:
-      - |
-          echo "[clean] Removing temporary files..."
-          rm -rf site docs/site .venv docs/.venv 2>/dev/null || true
-          find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
-          rm -f /tmp/argocd-port-forward*.log 2>/dev/null || true
-          echo "[clean] Done"
-
   install:
-    desc: "⚙️ Install dependencies"
+    desc: "⚙️ Install dependencies (macOS)"
     silent: true
     cmds:
-      - ./scripts/setup-dependencies.sh
+      - ./scripts/utils.sh install
 
   update:
     desc: "⚙️ Update dependencies"
     silent: true
-    deps:
-      - task: :quality:pre-commit:update
     cmds:
-      - brew upgrade kubectl helm minikube 2>/dev/null || echo "[update] Homebrew not available"
+      - ./scripts/utils.sh update
 
   info:
     desc: "⚙️ Show environment info"
     silent: true
     cmds:
-      - |
-          echo "[info] === ArgoCD Lab ==="
-          K=$(kubectl version --client -o json 2>/dev/null | jq -r '.clientVersion.gitVersion' || echo 'N/A')
-          H=$(helm version --short 2>/dev/null || echo 'N/A')
-          M=$(minikube version --short 2>/dev/null || echo 'N/A')
-          echo "[info] Tools: kubectl=$K helm=$H minikube=$M"
-          echo "[info] Config: profile={{.PROFILE}} k8s={{.K8S_VERSION}} ns={{.ARGOCD_NAMESPACE}} port={{.ARGOCD_PORT}}"
+      - ./scripts/utils.sh info
+
+  clean:
+    desc: "⚙️ Clean local artifacts"
+    silent: true
+    cmds:
+      - ./scripts/utils.sh clean

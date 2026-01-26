@@ -1,41 +1,20 @@
 version: '3'
 
 tasks:
-  fix:
-    desc: "✅  Auto-fix linting errors"
-    silent: true
-    cmds:
-      - echo "[quality] Fixing markdown..."
-      - markdownlint --fix "**/*.md" --ignore node_modules --ignore site 2>/dev/null || true
-      - echo "[quality] Fixing Python..."
-      - find . -name "*.py" -not -path "*/site/*" -not -path "*/.venv/*" -exec black {} + 2>/dev/null || true
-      - find . -name "*.py" -not -path "*/site/*" -not -path "*/.venv/*" -exec isort {} + 2>/dev/null || true
-      - echo "[quality] Done. Run 'task quality:validate' to verify."
-
-  pre-commit:install:
-    desc: "✅  Install pre-commit hooks"
-    silent: true
-    cmds:
-      - pre-commit install
-      - echo "Pre-commit hooks installed"
-
-  pre-commit:run:
-    desc: "✅  Run pre-commit hooks"
-    silent: true
-    cmds:
-      - echo "Running pre-commit hooks..."
-      - pre-commit run --all-files
-
-  pre-commit:update:
-    desc: "✅  Update pre-commit hooks"
-    silent: true
-    cmds:
-      - pre-commit autoupdate
-      - echo "Pre-commit hooks updated"
-
   validate:
-    desc: "✅  Run all validation checks"
+    desc: "✅ Run all validation checks"
     silent: true
-    deps:
-      - pre-commit:run
-      - task: :docs:build
+    cmds:
+      - ./scripts/quality.sh validate
+
+  hooks:
+    desc: "✅ Install pre-commit hooks"
+    silent: true
+    cmds:
+      - ./scripts/quality.sh hooks
+
+  run:
+    desc: "✅ Run pre-commit hooks"
+    silent: true
+    cmds:
+      - ./scripts/quality.sh run

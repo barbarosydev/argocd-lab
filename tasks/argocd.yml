@@ -7,7 +7,7 @@ tasks:
     deps:
       - task: :_check-cluster
     cmds:
-      - ./scripts/argocd-deploy.sh --argocd-namespace {{.ARGOCD_NAMESPACE}} --argo-values {{.ARGO_VALUES}} --port {{.ARGOCD_PORT}}
+      - ./scripts/argocd.sh bootstrap --namespace {{.ARGOCD_NAMESPACE}} --values {{.ARGO_VALUES}} --port {{.ARGOCD_PORT}}
 
   password:
     desc: "🔄 Get admin password"
@@ -15,7 +15,7 @@ tasks:
     deps:
       - task: :_check-cluster
     cmds:
-      - kubectl -n {{.ARGOCD_NAMESPACE}} get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d && echo
+      - ./scripts/argocd.sh password --namespace {{.ARGOCD_NAMESPACE}}
 
   ui:
     desc: "🔄 Open UI in browser"
@@ -23,20 +23,4 @@ tasks:
     deps:
       - task: :_check-cluster
     cmds:
-      - open http://localhost:{{.ARGOCD_PORT}}
-
-  deploy-app:
-    desc: "🔄 Deploy application"
-    silent: true
-    deps:
-      - task: :_check-cluster
-    cmds:
-      - ./scripts/deploy-app.sh --app-name {{.APP_NAME | default "demo-api"}} --profile {{.PROFILE}} {{.CLI_ARGS}}
-
-  undeploy-app:
-    desc: "🔄 Undeploy application"
-    silent: true
-    deps:
-      - task: :_check-cluster
-    cmds:
-      - ./scripts/undeploy-app.sh --app-name {{.APP_NAME | default "demo-api"}} {{.CLI_ARGS}}
+      - ./scripts/argocd.sh ui --port {{.ARGOCD_PORT}}

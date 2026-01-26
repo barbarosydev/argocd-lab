@@ -4,29 +4,37 @@ This directory contains modular task definitions included in the main Taskfile.y
 
 ## Modules
 
-- `lab.yml` - Lab lifecycle (start, stop, restart, status)
-- `argocd.yml` - ArgoCD management (deploy, ui, apps)
+- `lab.yml` - Lab lifecycle (up, down, nuke, status)
+- `argocd.yml` - ArgoCD management (bootstrap, password, ui)
+- `apps.yml` - Application management (list, sync, deploy, undeploy)
+- `airflow.yml` - Airflow deployment (deploy, undeploy, ui, passwords, status)
 - `docs.yml` - Documentation (serve, build, clean)
-- `quality.yml` - Code quality (pre-commit, lint, test)
-- `utils.yml` - Utilities (clean, install, info)
+- `quality.yml` - Code quality (validate, hooks, run)
+- `utils.yml` - Utilities (install, update, info, clean)
 
 ## Usage
 
 ```bash
 # Lab tasks
-task lab:start
-task lab:stop
+task lab:up
+task lab:down
+task lab:status
 
 # ArgoCD tasks
 task argocd:ui
-task argocd:deploy-app
+task argocd:password
+
+# Apps tasks
+task apps:list
+task apps:deploy
+task apps:undeploy
+
+# Airflow tasks
+task airflow:deploy
+task airflow:ui
 
 # Documentation tasks
 task docs:serve
-
-# Or use shortcuts
-task start      # → task lab:start
-task deploy     # → task argocd:deploy-app
 ```
 
 See `task --list` for all available tasks.
